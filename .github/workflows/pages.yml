@@ -19,14 +19,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      # regenerate the html from content.py so the repo can never drift
-      - run: python3 build.py
+
+      # Regenerate the HTML from content.py so the published site can never
+      # drift from the content model, whatever is committed.
+      - name: Build
+        run: python3 build.py
+
+      # Stage only what should be public. Keeps .git, the workflow and the
+      # generator out of the served directory.
+      - name: Stage site
+        run: |
+          mkdir -p _site
+          cp -r assets _site/
+          cp *.html _site/
+          cp CNAME robots.txt sitemap.xml .nojekyll _site/
+          ls -la _site
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
   deploy:
     needs: build
