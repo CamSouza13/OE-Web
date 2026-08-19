@@ -5,9 +5,9 @@ some clicking.
 
 ## 1. Create the repo
 
-On github.com: **New repository**, name it `orbital-ecology-site` (the name does
-not affect the domain), leave it empty. Do not add a README, .gitignore or
-licence, they would conflict with what is already here.
+Done: https://github.com/CamSouza13/OE-Web
+
+The repo name does not affect the domain, that comes from the `CNAME` file.
 
 Public is fine and simpler. Private also works: GitHub Pages on a private repo
 requires a paid plan, and the workflow already stages a clean `_site` so the
@@ -15,13 +15,12 @@ generator and git history are never served either way.
 
 ## 2. Push
 
-    cd orbital-ecology-site
-    git remote add origin https://github.com/YOUR-USERNAME/orbital-ecology-site.git
+    git remote add origin https://github.com/CamSouza13/OE-Web.git
     git push -u origin main
 
 If you use SSH instead:
 
-    git remote add origin git@github.com:YOUR-USERNAME/orbital-ecology-site.git
+    git remote add origin git@github.com:CamSouza13/OE-Web.git
 
 ## 3. Turn on Pages
 
@@ -40,7 +39,7 @@ At whoever holds orbitalecology.com, set these records:
     A      @      185.199.109.153
     A      @      185.199.110.153
     A      @      185.199.111.153
-    CNAME  www    YOUR-USERNAME.github.io.
+    CNAME  www    camsouza13.github.io.
 
 Delete any existing A or CNAME record on `@` and `www` first, including parking
 or forwarding records from the registrar. Those are the usual reason a domain
@@ -51,7 +50,7 @@ save. `CNAME` is already in the repo so this should verify immediately. Once the
 certificate is issued, tick **Enforce HTTPS**.
 
 DNS can take anywhere from ten minutes to a few hours. The site is live on
-`YOUR-USERNAME.github.io/orbital-ecology-site/` in the meantime.
+`camsouza13.github.io/OE-Web/` in the meantime.
 
 ## What the workflow does
 
