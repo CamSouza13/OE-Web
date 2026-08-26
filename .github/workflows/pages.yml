@@ -20,23 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      # Regenerate the HTML from content.py so the published site can never
-      # drift from the content model, whatever is committed.
-      - name: Build
-        run: python3 build.py
-
-      # Stage only what should be public. Keeps .git, the workflow and the
-      # generator out of the served directory.
       - name: Stage site
         run: |
           mkdir -p _site
           cp -r assets _site/
           cp *.html _site/
           cp CNAME robots.txt sitemap.xml .nojekyll _site/
+          cp engine.js domains.js samples.js demo.js _site/
+          cp -r data _site/
+          if [ -d paper ]; then cp -r paper _site/; fi
           ls -la _site
 
       - uses: actions/upload-pages-artifact@v3
