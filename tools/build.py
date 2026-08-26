@@ -940,7 +940,7 @@ def footer():
 <div>{wordmark()}<p style="margin-top:18px;max-width:34ch;color:var(--t2);font-size:14px">
 {html.escape(THESIS)}</p></div>
 <div><h5>Products</h5>{prods}</div>
-<div><h5>Company</h5><a href="company.html">Team</a><a href="index.html#record">Validation record</a>
+<div><h5>Company</h5><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="company.html">Team</a><a href="index.html#record">Validation record</a>
 <a href="index.html#sources">Sources</a><a href="index.html#questions">Questions</a>
 </div>
 <div><h5>Contact</h5><a href="evaluation.html">Request an evaluation</a>
