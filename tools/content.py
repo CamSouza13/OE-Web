@@ -16,7 +16,7 @@ MARKQ   = "Building worlds that live."
 THESIS  = "Make complex living systems reliable enough to become infrastructure."
 DOMAIN  = "orbitalecology.com"
 CAL     = "https://calendar.app.google/F8VHXD7MMtXNDtKy9"
-MEDIUM  = "https://medium.com/@orbitalecology"
+MEDIUM  = ""
 # Paste a Formspree form id here (the bit after /f/) to post the evaluation
 # form to your inbox. Left empty, the form composes a pre-filled email
 # instead, so it works either way on a static host.

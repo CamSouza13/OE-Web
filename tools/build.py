@@ -926,7 +926,7 @@ def wordmark(href="index.html"):
 def nav():
     links = [("index.html#products","Products"),("index.html#method","Method"),
              ("index.html#record","Validation"),("evaluation.html","Evaluation"),
-             (MEDIUM,"Notes"),("company.html","Company")]
+             ("company.html","Company")]
     ls = "".join(
         f'<a class="n" href="{h}"{" target=_blank rel=noopener" if h.startswith("http") else ""}>{t}</a>'
         for h,t in links)
@@ -942,7 +942,7 @@ def footer():
 <div><h5>Products</h5>{prods}</div>
 <div><h5>Company</h5><a href="company.html">Team</a><a href="index.html#record">Validation record</a>
 <a href="index.html#sources">Sources</a><a href="index.html#questions">Questions</a>
-<a href="{MEDIUM}" target="_blank" rel="noopener">Technical notes</a></div>
+</div>
 <div><h5>Contact</h5><a href="evaluation.html">Request an evaluation</a>
 <a href="{CAL}">Book a call</a><a href="mailto:{MAIL}">{MAIL}</a>
 <a href="nexus.html">NEXUS platform</a></div>
