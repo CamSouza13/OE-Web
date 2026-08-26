@@ -1,0 +1,234 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live demo · Orbital Ecology</title>
+<meta name="description" content="Drop in an operating log. Watch the engine estimate what no sensor reports, and see what the warning was worth.">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/oe.css">
+<style>
+
+/* ---------- masthead ---------- */
+.mast{padding-block:clamp(60px,9vw,124px) clamp(38px,4.6vw,60px)}
+.mast .lbl i{font-style:normal;color:var(--grnd)}
+.mast h1{font-size:clamp(39px,5.4vw,72px);line-height:1.06;margin:24px 0 28px;max-width:17ch}
+.mast .lede{color:var(--t1);font-size:clamp(16px,1.6vw,19px);max-width:46ch;line-height:1.55}
+
+/* ---------- three steps ---------- */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,3vw,52px);
+ border-top:1px solid var(--ln2);padding:clamp(24px,2.8vw,36px) 0 clamp(34px,4.2vw,54px)}
+@media(max-width:800px){.how{grid-template-columns:1fr;gap:16px}}
+.how .s{display:flex;gap:14px;align-items:baseline}
+.how .s i{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--grnd);font-style:normal}
+.how .s span{font-size:14.5px;color:var(--t1)}
+
+/* ---------- cards ---------- */
+.rack{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1vw,16px);
+ margin-inline:clamp(0px,1.7vw,28px)}
+@media(max-width:1240px){.rack{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.rack{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--ln);display:flex;flex-direction:column;
+ min-width:0;padding:var(--cp)}
+.hd{min-height:104px}
+.hd .ix{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--t4)}
+.hd h3{font-size:clamp(16px,1.3vw,19px);margin-top:12px;line-height:1.2}
+.hd p{margin:5px 0 0;font-size:12.5px;color:var(--t2);line-height:1.45}
+
+/* ---------- dropzone ---------- */
+.dz{margin-top:var(--cp);padding:22px 14px;border:1px dashed var(--ln3);background:var(--sink);
+ text-align:center;cursor:pointer;transition:border-color .16s,background .16s;
+ min-height:96px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.dz:hover,.dz.over{border-color:var(--grnd);background:var(--wash)}
+.dz.done{border-style:solid;border-color:var(--ln);background:var(--sink);cursor:default}
+.dz .fn{font-size:13px;color:var(--t1);word-break:break-all;line-height:1.35}
+.dz.done .fn{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.dz .mt{font-family:var(--mono);font-size:10px;color:var(--t3);letter-spacing:.06em}
+.dz a{color:var(--grnd);text-decoration:none;border-bottom:1px solid rgba(20,67,47,.34)}
+
+/* ---------- live ticker: what the engine is doing ---------- */
+.tick{display:none;list-style:none;margin:var(--cp) 0 0;padding:var(--cp) 0 0;
+ border-top:1px solid var(--ln);min-height:calc(var(--cp) + 178px)}
+.tick.on{display:block}
+.tick li{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:baseline;
+ padding:5px 0;font-size:12px;line-height:1.45;color:var(--t4);transition:color .2s}
+.tick li .d{width:6px;height:6px;border-radius:50%;background:var(--ln2);
+ justify-self:center;transform:translateY(-1px)}
+.tick li em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--t4);
+ letter-spacing:.02em;white-space:nowrap}
+.tick li.go{color:var(--ink)}
+.tick li.go .d{background:var(--grnd);animation:pulse 1.05s ease-in-out infinite}
+.tick li.go em{color:var(--grnd)}
+.tick li.ok{color:var(--t2)}
+.tick li.ok .d{background:var(--grnd);box-shadow:0 0 0 3px rgba(20,67,47,.15)}
+.tick li.ok em{color:var(--t2)}
+@keyframes pulse{0%,100%{opacity:1;transform:translateY(-1px) scale(1)}
+ 50%{opacity:.35;transform:translateY(-1px) scale(.72)}}
+
+/* ---------- output ---------- */
+.out{display:none}
+.out.on{display:flex;flex-direction:column;flex:1}
+.out .blk:last-child{margin-top:auto}
+.blk{border-top:1px solid var(--ln);margin-top:var(--cp);padding-top:var(--cp)}
+.slb{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+ color:var(--t3);margin:0 0 14px}
+.nar{margin:0;font-size:13.2px;line-height:1.65;color:var(--t1)}
+.out .blk:first-child .nar{min-height:11.6em}
+.nar b{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:12.3px}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.4vw,20px);margin-top:20px}
+.big{font-family:var(--mono);font-size:clamp(25px,2.3vw,33px);line-height:1;
+ letter-spacing:-.03em;color:var(--ink);white-space:nowrap}
+.big small{font-size:.44em;color:var(--t2);letter-spacing:0;margin-left:3px}
+.big.grn{color:var(--grnd)}
+.cap{font-size:10.6px;color:var(--t2);margin-top:9px;line-height:1.35}
+
+/* ---------- charts ---------- */
+.plot{margin:0 0 22px}
+.plot:last-child{margin-bottom:0}
+.plot .ph{display:flex;flex-direction:column;gap:4px;margin-bottom:9px;min-height:34px}
+.plot .pt{font-size:12px;color:var(--ink);line-height:1.25}
+.plot .pu{font-family:var(--mono);font-size:8.5px;color:var(--t3);letter-spacing:.15em;
+ text-transform:uppercase}
+.sw{display:inline-block;width:7px;height:7px;border-radius:1px;margin-right:7px;vertical-align:1px}
+.plot figcaption{font-size:10.8px;color:var(--t2);line-height:1.5;margin-top:8px;min-height:32px}
+
+/* ---------- value ---------- */
+table.val{width:100%;border-collapse:collapse}
+table.val td{padding:9px 0;font-size:12.5px;border-bottom:1px solid var(--ln);vertical-align:baseline}
+table.val td:first-child{color:var(--t2);padding-right:10px}
+table.val td:last-child{text-align:right;font-family:var(--mono);font-size:12px;color:var(--ink);
+ white-space:nowrap}
+table.val tr.em td{border-bottom:0;padding-top:13px}
+table.val tr.em td:first-child{color:var(--t1)}
+table.val tr.em td:last-child{color:var(--grnd);font-size:15px}
+table.val td .na{color:var(--t4);font-size:10.5px;letter-spacing:.04em}
+table.val.sm td{padding:5px 0;font-size:11.5px}
+table.val.sm td:last-child{font-size:10.5px}
+
+/* ---------- why ---------- */
+.why{background:var(--wash);border-top-color:var(--ln);position:relative;
+ padding:var(--cp) var(--cp) var(--cp) calc(var(--cp) - 6px);margin-inline:-6px}
+.why::before{content:"";position:absolute;left:0;top:-1px;bottom:0;width:2px;background:var(--grnd)}
+
+/* ---------- disclosures ---------- */
+details{margin-top:16px}
+details summary{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.2em;
+ text-transform:uppercase;color:var(--t3);list-style:none}
+details summary:hover{color:var(--t1)}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+ ";color:var(--t4)}
+details[open] summary::before{content:"− "}
+.fine{font-size:11px;color:var(--t2);line-height:1.6;margin:12px 0 0}
+.dv{max-height:180px;overflow:auto;margin-top:12px;border-top:1px solid var(--ln)}
+.dv table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:10px}
+.dv th{position:sticky;top:0;background:var(--card);color:var(--t3);font-weight:400;
+ text-align:right;padding:5px 3px;letter-spacing:.08em;border-bottom:1px solid var(--ln)}
+.dv th:first-child{text-align:left}
+.dv td{color:var(--t2);text-align:right;padding:3px;border-bottom:1px solid var(--ln)}
+.dv td:first-child{text-align:left;color:var(--t3)}
+
+.foot{font-size:11.5px;color:var(--t2);line-height:1.6;max-width:82ch;
+ padding-block:clamp(28px,3.4vw,44px) 0}
+@media(max-width:900px){.cta .box{grid-template-columns:1fr}}
+</style></head><body>
+<header class="nav" id="nav"><div class="nv">
+ <a class="wm" href="index.html" aria-label="Orbital Ecology">
+  <img class="mk" src="assets/mark-ink.png" alt="">
+  <img class="wd" src="assets/wordmark-ink.png" alt="Orbital Ecology"></a>
+ <nav class="lk" aria-label="Primary">
+  <a class="n" href="index.html#products">Products</a>
+  <a class="n" href="philosophy.html">Philosophy</a>
+  <a class="n keep" href="demo.html">Live demo</a>
+  <a class="n" href="index.html#record">Validation</a>
+  <a class="n" href="team.html">Team</a>
+  <a class="n" href="https://medium.com/@orbitalecology" target="_blank" rel="noopener">Notes</a>
+  <a class="btn nav-cta" href="evaluation.html"><span class="lg2">Request an evaluation</span><span class="sm">Evaluation</span><span class="ar">&rarr;</span></a>
+ </nav>
+</div></header>
+<main>
+<div class="wrap mast">
+ <p class="lbl">Live engine &middot; runs in your browser</p>
+ <h1>The loss is decided days before the alarm.</h1>
+ <p class="lede">Drop in a log you already keep. Watch the engine work, then read what it found
+  and what that warning was worth.</p>
+</div>
+
+<div class="wrap">
+ <div class="how">
+  <div class="s"><i>01</i><span>Read a log you already keep.</span></div>
+  <div class="s"><i>02</i><span>Estimate what no sensor reports.</span></div>
+  <div class="s"><i>03</i><span>Flag the drop, price the risk.</span></div>
+ </div>
+
+ <div class="rack" id="rack"></div>
+
+ <p class="foot">Sample logs are synthetic. Cost figures are modelled from the assumptions printed
+  on each card, not measured savings. The engine reads and forecasts. It does not control anything.</p>
+</div>
+
+<section class="end">
+ <div class="inr">
+  <div class="cpy">
+   <p class="lbl">Pilot</p>
+   <h2>Run it on your own history.</h2>
+   <p>Send a log you already keep. We replay it against your recorded incidents and show how much
+    warning was available, event by event, including everywhere the engine would have missed.</p>
+   <ul>
+    <li>No hardware, no install, no change to how you operate.</li>
+    <li>Your data stays yours. We sign before you send anything.</li>
+    <li>You keep the full workings, and the file is deleted afterwards.</li>
+   </ul>
+  </div>
+  <div class="box zi">
+   <div class="bgi"><img src="assets/img/growhouse.webp" alt="" loading="lazy"></div>
+   <div class="in2">
+    <a class="btn lg" href="mailto:cameron@orbitalecology.com?subject=Pilot%20study%20enquiry">Start a pilot <span class="ar">&rarr;</span></a>
+    <a class="btn lg lt" href="evaluation.html">Technical evaluation <span class="ar">&rarr;</span></a>
+    <p class="fine">Validated against the reference models these fields use, and backtested on
+     real commercial operating history.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+</main>
+<footer>
+ <div class="wrap ft">
+  <div>
+   <a class="wm" href="index.html" aria-label="Orbital Ecology">
+    <img class="mk" src="assets/mark-ink.png" alt="">
+    <img class="wd" src="assets/wordmark-ink.png" alt="Orbital Ecology"></a>
+   <p class="about">Superintelligence for living systems. Building the building blocks of
+    biological life support, from the mud to the moon.</p>
+  </div>
+  <div><h4>Products</h4>
+   <a href="current.html">CURRENT &middot; Aquaculture</a>
+   <a href="canopy.html">CANOPY &middot; Controlled agriculture</a>
+   <a href="aquifer.html">AQUIFER &middot; Hydroponics and water</a>
+   <a href="reclaim.html">RECLAIM &middot; Bioremediation</a>
+   <a href="culture.html">CULTURE &middot; Bioprocessing</a>
+   <a href="orbis.html">ORBIS &middot; Space and life support</a>
+  </div>
+  <div><h4>Company</h4>
+   <a href="philosophy.html">Philosophy</a>
+   <a href="team.html">Team</a>
+   <a href="company.html">About</a>
+   <a href="index.html#record">Validation record</a>
+   <a href="nexus.html">NEXUS platform</a>
+   <a href="https://medium.com/@orbitalecology" target="_blank" rel="noopener">Notes</a>
+  </div>
+  <div><h4>Contact</h4>
+   <a href="mailto:cameron@orbitalecology.com">cameron@orbitalecology.com</a>
+   <a href="evaluation.html">Request an evaluation</a>
+   <a href="demo.html">Live demo</a>
+  </div>
+ </div>
+ <div class="wrap ftb">
+  <p>&copy; 2026 Orbital Ecology</p>
+  <p>San Diego, California</p>
+ </div>
+</footer>
+<script src="assets/oe.js"></script>
+<script src="engine.js"></script>
+<script src="domains.js"></script>
+<script src="samples.js"></script>
+<script src="demo.js"></script>
+</body></html>
