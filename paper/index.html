@@ -1,0 +1,455 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orbital Ecology — technical overview</title>
+<meta name="description" content="State estimation and forecasting for closed living systems.
+One engine across aquaculture, controlled agriculture, water, bioprocess and life support.">
+<meta name="theme-color" content="#F4F2ED">
+<link rel="icon" href="../assets/icon-512.png">
+<style>
+:root{
+ --paper:#F4F2ED; --paper2:#EDEAE3; --card:#FAF9F5;
+ --ink:#1A1916; --ink2:#4A4842; --ink3:#7C786F; --ink4:#A8A399;
+ --rule:#D6D2C7; --rule2:#BFBAAE;
+ --acc:#A4441C;
+ --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+ --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+ --mono:ui-monospace,"SF Mono","Courier New",Courier,monospace;
+ --measure:64ch; --pad:clamp(20px,5vw,64px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);
+ font-family:var(--serif);font-size:17.5px;line-height:1.62;
+ -webkit-font-smoothing:antialiased;font-kerning:normal;
+ background-image:radial-gradient(rgba(26,25,22,.018) 1px,transparent 1px);
+ background-size:3px 3px}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+::selection{background:var(--ink);color:var(--paper)}
+:focus{outline:none}
+:focus-visible{outline:1.5px solid var(--acc);outline-offset:3px}
+
+/* ---- page frame: a wide margin column, like a printed page ---- */
+.sheet{max-width:1180px;margin:0 auto;padding:0 var(--pad)}
+.doc{display:grid;grid-template-columns:168px minmax(0,var(--measure)) 1fr;gap:0 44px}
+.doc>.gut{grid-column:1}
+.doc>.col{grid-column:2}
+.doc>.full{grid-column:1/-1}
+@media(max-width:1000px){
+ .doc{grid-template-columns:1fr}
+ .doc>.gut,.doc>.col,.doc>.full{grid-column:1}
+}
+
+/* ---- masthead ---- */
+.mast{border-bottom:1px solid var(--ink);position:sticky;top:0;z-index:40;
+ background:rgba(244,242,237,.94);backdrop-filter:saturate(140%) blur(10px)}
+.mast .in{max-width:1180px;margin:0 auto;padding:0 var(--pad);height:62px;
+ display:flex;align-items:center;gap:16px}
+.mast .wm{display:flex;align-items:center;gap:11px;text-decoration:none}
+.mast .wm img.m{width:29px}.mast .wm img.w{width:104px}
+.mast nav{margin-left:auto;display:flex;gap:22px;align-items:center}
+.mast a.n{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+ color:var(--ink2);text-decoration:none;padding:3px 0;border-bottom:1px solid transparent}
+.mast a.n:hover{border-bottom-color:var(--ink)}
+.mast .cta{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+ color:var(--paper);background:var(--ink);text-decoration:none;padding:9px 14px}
+.mast .cta:hover{background:var(--acc)}
+@media(max-width:860px){.mast a.n{display:none}
+ .mast .in{height:56px;gap:10px}
+ .mast .cta{font-size:9px;letter-spacing:.11em;padding:8px 11px;white-space:nowrap}
+ .mast .wm img.m{width:25px}.mast .wm img.w{width:88px}}
+
+/* ---- title block ---- */
+.title{padding:clamp(56px,9vw,124px) 0 clamp(34px,4vw,54px)}
+.slug{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+ color:var(--ink3);margin:0 0 clamp(28px,4vw,46px)}
+h1{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(40px,7vw,86px);
+ line-height:1.02;letter-spacing:-.022em;max-width:16ch}
+h1 em{font-style:italic}
+.deck{margin:clamp(26px,3vw,38px) 0 0;font-size:clamp(19px,1.9vw,23px);line-height:1.5;
+ color:var(--ink2);max-width:46ch}
+.byline{margin-top:clamp(30px,4vw,48px);padding-top:16px;border-top:1px solid var(--rule);
+ display:flex;gap:36px;flex-wrap:wrap;
+ font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink3)}
+.byline b{display:block;color:var(--ink);font-weight:400;margin-top:5px;letter-spacing:.1em}
+
+/* ---- abstract ---- */
+.abstract{background:var(--paper2);border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);
+ padding:clamp(30px,4vw,46px) 0}
+.abstract .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+ color:var(--ink3);padding-top:4px}
+.abstract p{margin:0;font-size:17px;line-height:1.62}
+.abstract p+p{margin-top:14px}
+
+/* ---- sections ---- */
+section{padding:clamp(52px,7vw,96px) 0;border-bottom:1px solid var(--rule)}
+.snum{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+ color:var(--acc);padding-top:8px}
+h2{margin:0 0 clamp(22px,3vw,34px);font-family:var(--serif);font-weight:400;
+ font-size:clamp(27px,3.4vw,40px);line-height:1.12;letter-spacing:-.015em;max-width:20ch}
+h3{margin:0 0 8px;font-family:var(--sans);font-weight:600;font-size:15px;letter-spacing:-.005em}
+p{margin:0 0 17px}
+p:last-child{margin-bottom:0}
+.lead{font-size:19px;line-height:1.56}
+.note{font-family:var(--mono);font-size:11px;line-height:1.72;color:var(--ink3);letter-spacing:.01em}
+.gut .note{padding-top:6px}
+.gut .note b{display:block;color:var(--ink2);font-weight:400;text-transform:uppercase;
+ letter-spacing:.16em;font-size:9.5px;margin-bottom:7px}
+.sc{font-variant:small-caps;letter-spacing:.06em}
+
+/* ---- figure ---- */
+figure{margin:clamp(34px,4vw,52px) 0 0;grid-column:1/-1}
+.plate{background:var(--card);border:1px solid var(--rule2);padding:clamp(14px,2vw,26px)}
+figcaption{margin-top:14px;font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--ink2);
+ max-width:78ch}
+figcaption b{color:var(--ink);font-weight:400;letter-spacing:.12em;text-transform:uppercase;
+ font-size:10px;margin-right:8px}
+.fig1{width:100%;height:auto}
+.fig1 .frame{fill:none;stroke:var(--rule2);stroke-width:1}
+.fig1 .gx,.fig1 .gy{stroke:var(--rule);stroke-width:1}
+.fig1 .ax{fill:var(--ink3);font-family:var(--mono);font-size:10px;letter-spacing:.06em}
+.fig1 .yl,.fig1 .xl{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink4)}
+.fig1 .lab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+ fill:var(--ink2)}
+.fig1 .th-l,.fig1 .l2{fill:var(--acc)}
+.fig1 .th{stroke:var(--acc);stroke-width:1;stroke-dasharray:4 4}
+.fig1 .win{fill:var(--acc);opacity:.055}
+.fig1 .obs{fill:none;stroke:var(--ink4);stroke-width:1.3}
+.fig1 .state{fill:none;stroke:var(--ink);stroke-width:2}
+.fig1 .v1{stroke:var(--ink);stroke-width:1;opacity:.5}
+.fig1 .v2{stroke:var(--acc);stroke-width:1;opacity:.6}
+.fig1 .dot{fill:var(--ink)}
+.fig1 .gap{fill:var(--ink);font-family:var(--serif);font-size:19px}
+
+.fig1 .obs,.fig1 .state{stroke-dasharray:var(--Lo);stroke-dashoffset:var(--Lo)}
+.fig1 .state{stroke-dasharray:var(--Ls);stroke-dashoffset:var(--Ls)}
+.fig1 .band,.fig1 .win,.fig1 .th,.fig1 .v1,.fig1 .v2,.fig1 .dot,.fig1 .lab,.fig1 .gap{opacity:0}
+.rv .fig1 .obs{animation:draw 1.6s cubic-bezier(.4,0,.3,1) .1s both}
+.rv .fig1 .th{animation:fade .7s ease .8s both}
+.rv .fig1 .th-l{animation:fade .6s ease 1s both}
+.rv .fig1 .band{animation:fade 1s ease 1.1s both}
+.rv .fig1 .state{animation:draw 1.9s cubic-bezier(.4,0,.3,1) 1.15s both}
+.rv .fig1 .v1{animation:fade .6s ease 2.5s both}
+.rv .fig1 .dot{animation:fade .5s ease 2.55s both}
+.rv .fig1 .l1{animation:fade .6s ease 2.6s both}
+.rv .fig1 .v2{animation:fade .6s ease 2.85s both}
+.rv .fig1 .l2{animation:fade .6s ease 2.95s both}
+.rv .fig1 .win{animation:fade .9s ease 3.05s both}
+.rv .fig1 .gap{animation:fade .8s ease 3.2s both}
+@keyframes draw{from{stroke-dashoffset:var(--Ls,1400);opacity:1}to{stroke-dashoffset:0;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.fig1 .win{opacity:.055}
+.rv .fig1 .win{animation:fadewin .9s ease 3.05s both}
+@keyframes fadewin{from{opacity:0}to{opacity:.055}}
+
+/* ---- method, numbered ---- */
+.steps{counter-reset:s;margin:0;padding:0;list-style:none}
+.steps li{counter-increment:s;padding:22px 0;border-top:1px solid var(--rule);display:grid;
+ grid-template-columns:44px 1fr;gap:20px}
+.steps li:before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:11px;
+ letter-spacing:.1em;color:var(--ink4);padding-top:4px}
+.steps h3{margin-bottom:7px;font-size:16px}
+.steps p{margin:0;font-size:16px;color:var(--ink2)}
+
+/* ---- specimen plates ---- */
+.specs{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,3vw,40px) clamp(16px,2.4vw,32px);
+ margin-top:clamp(26px,3vw,42px)}
+.spec{text-decoration:none;display:block}
+.spec .disc{display:block;position:relative;aspect-ratio:1/1;border-radius:50%;overflow:hidden;
+ background:var(--card);border:1px solid var(--rule2);
+ transition:border-color .3s,transform .5s cubic-bezier(.2,.7,.3,1)}
+.spec .disc img{width:100%;height:100%;object-fit:cover;
+ transition:transform .8s cubic-bezier(.2,.7,.3,1),filter .4s;filter:contrast(1.02)}
+.spec:hover .disc{border-color:var(--ink);transform:translateY(-3px)}
+.spec:hover .disc img{transform:scale(1.06)}
+.spec .disc:after{content:"";position:absolute;inset:0;border-radius:50%;
+ box-shadow:inset 0 0 0 1px rgba(26,25,22,.10),inset 0 14px 30px -18px rgba(26,25,22,.5)}
+.spec .cap{display:block;margin-top:13px;padding-top:9px;border-top:1px solid var(--rule)}
+.spec .id{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink4)}
+.spec .nm{display:block;font-family:var(--sans);font-size:14.5px;font-weight:600;
+ letter-spacing:.01em;margin-top:5px;color:var(--ink)}
+.spec .mk{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;
+ text-transform:uppercase;color:var(--ink3);margin-top:4px;line-height:1.5;min-height:2.1em}
+@media(max-width:900px){.specs{grid-template-columns:repeat(2,1fr)}}
+
+/* ---- table ---- */
+table{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:14px;margin-top:6px}
+caption{text-align:left;font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--ink2);
+ margin-bottom:14px}
+caption b{color:var(--ink);font-weight:400;letter-spacing:.12em;text-transform:uppercase;
+ font-size:10px;margin-right:8px}
+thead th{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+ color:var(--ink3);font-weight:400;text-align:left;padding:0 14px 9px 0;
+ border-bottom:1px solid var(--ink)}
+tbody td{padding:13px 14px 13px 0;border-bottom:1px solid var(--rule);vertical-align:top;
+ color:var(--ink2)}
+tbody td:first-child{font-family:var(--mono);font-size:10px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--ink);white-space:nowrap}
+tbody td.ref{font-family:var(--mono);font-size:11.5px;color:var(--ink);white-space:nowrap}
+tbody td.what{color:var(--ink)}
+tbody td.what span{display:block;font-size:12.5px;color:var(--ink3);margin-top:3px}
+tbody tr:hover td{background:var(--paper2)}
+@media(max-width:820px){
+ table,thead,tbody,tr,td,th{display:block}
+ thead{display:none}
+ tbody tr{border-bottom:1px solid var(--ink);padding:14px 0}
+ tbody td{border:0;padding:2px 0}
+}
+
+/* ---- references ---- */
+.refs{counter-reset:r;list-style:none;margin:0;padding:0}
+.refs li{padding:16px 0;border-top:1px solid var(--rule);display:grid;
+ grid-template-columns:52px 1fr;gap:18px;font-size:15px;line-height:1.55}
+.refs .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--acc);padding-top:4px}
+.refs .t{color:var(--ink)}
+.refs .c{display:block;font-family:var(--mono);font-size:11px;color:var(--ink3);margin-top:6px;
+ line-height:1.65}
+.refs a{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+ color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--rule2);
+ display:inline-block;margin-top:8px;padding-bottom:2px}
+.refs a:hover{color:var(--acc);border-bottom-color:var(--acc)}
+sup{font-family:var(--mono);font-size:9px;color:var(--acc);vertical-align:super;margin-left:1px}
+
+/* ---- closing ---- */
+.close{background:var(--ink);color:var(--paper);border:0;padding:clamp(64px,8vw,116px) 0}
+.close h2{color:var(--paper);max-width:16ch}
+.close p{color:#B9B4A9;max-width:52ch;font-size:18px}
+.close .snum{color:#8A857A}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.b{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+ text-decoration:none;padding:15px 24px;transition:.2s}
+.b1{background:var(--paper);color:var(--ink)}.b1:hover{background:var(--acc);color:var(--paper)}
+.b2{border:1px solid #55514A;color:var(--paper)}.b2:hover{border-color:var(--paper)}
+
+/* ---- colophon ---- */
+.colo{padding:44px 0 56px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+ color:var(--ink3);line-height:1.9}
+.colo .r{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
+.colo a{color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--rule2)}
+.colo a:hover{color:var(--acc)}
+
+/* ---- motion ---- */
+[data-rv]{opacity:0;transform:translateY(14px);
+ transition:opacity .9s cubic-bezier(.2,.7,.3,1),transform .9s cubic-bezier(.2,.7,.3,1);
+ transition-delay:var(--d,0ms)}
+[data-rv].rv{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{animation-duration:.001ms!important;animation-delay:0ms!important;
+  transition-duration:.001ms!important;transition-delay:0ms!important}
+ [data-rv]{opacity:1;transform:none}
+ .fig1 *{opacity:1!important;stroke-dashoffset:0!important}
+ .fig1 .win{opacity:.055!important}
+}
+</style></head>
+<body><main>
+
+<header class="mast"><div class="in">
+<a class="wm" href="index.html" aria-label="Orbital Ecology">
+<img class="m" src="assets/mark-ink.png" alt=""><img class="w" src="assets/wordmark-ink.png" alt="Orbital Ecology"></a>
+<nav aria-label="Primary">
+<a class="n" href="#problem">Problem</a>
+<a class="n" href="#method">Method</a>
+<a class="n" href="#systems">Systems</a>
+<a class="n" href="#record">Record</a>
+
+</nav>
+<a class="cta" href="../evaluation.html">Request an evaluation</a>
+</div></header>
+
+<div class="sheet"><div class="doc">
+<div class="full title">
+<p class="slug">Orbital Ecology &nbsp;·&nbsp; Technical overview &nbsp;·&nbsp; Revision 2026.08</p>
+<h1>Living systems fail <em>in silence.</em></h1>
+<p class="deck">Every gauge on a closed system measures a consequence. We estimate the state
+that produced it, and simulate that state forward.</p>
+<div class="byline">
+<span>Method<b>Bayesian state estimation</b></span>
+<span>Domains<b>Seven, one engine</b></span>
+<span>Evidence<b>Four benchmarks, one backtest</b></span>
+<span>Deployment<b>Read-only</b></span>
+</div>
+</div>
+</div></div>
+
+<div class="abstract"><div class="sheet"><div class="doc">
+<p class="lbl gut">Abstract</p>
+<div class="col">
+<p>In a closed biological process, the variable that decides the outcome is not measured.
+Dissolved oxygen is what the biology left behind. Ammonia is what the biofilter has not cleared.
+Slab EC is a receipt. Instruments report what the process already did, so operators fund margin
+they cannot size and respond to symptoms rather than causes.</p>
+<p>We write the process down as a mechanistic model, solve backwards to recover the state no
+instrument reports, and integrate that state forward. The output is a forecast with a stated
+confidence, not an alarm. Results to date are benchmark validation and one held-out backtest on
+commercial operating history. There is no production deployment.<sup>S8</sup></p>
+</div>
+</div></div></div>
+
+<div class="sheet"><div class="doc">
+
+<section id="problem" class="full"><div class="doc">
+<p class="snum gut">§ 1</p>
+<div class="col">
+<h2>The variable that decides the outcome is unmeasured.</h2>
+<p class="lead">A hidden state drifts for hours while every instrument reads normal, then the
+observable steps. A threshold alarm cannot help with that shape, because the threshold is drawn
+on the thing that moves last. An estimator can, because it watches the thing that moves first.</p>
+<p>The cost is economic before it is technical. Because the state cannot be seen, a well-run
+facility runs with margin: extra aeration, conservative loading, stock density below what the
+system could carry. That margin is paid every day to insure against a night nobody can predict.
+Published incidents put the acute cost at USD 1.16M and USD 5M in single events at land-based
+farms,<sup>S1,S2</sup> and aeration alone accounts for 50 to 90 percent of plant electricity in
+conventional activated sludge, set conservatively because nitrifier state is not measured.<sup>S3</sup></p>
+</div>
+<figure data-rv>
+<div class="plate"><svg viewBox="0 0 1160 380" xmlns="http://www.w3.org/2000/svg" class="fig1"
+ style="--Ls:1099;--Lo:1305" role="img"
+ aria-label="The estimated hidden state crosses the action threshold 6.5 hours before the observable instrument moves.">
+<defs><linearGradient id="bd" x1="0" y1="0" x2="1" y2="0">
+ <stop offset="0" stop-color="#1A1916" stop-opacity=".04"/>
+ <stop offset="1" stop-color="#1A1916" stop-opacity=".13"/></linearGradient></defs>
+<rect class="frame" x="68" y="30" width="1048" height="302"/>
+<line class="gx" x1="129.6" y1="30" x2="129.6" y2="332"/><text class="ax" x="129.6" y="352" text-anchor="middle">-24</text><line class="gx" x1="252.9" y1="30" x2="252.9" y2="332"/><text class="ax" x="252.9" y="352" text-anchor="middle">-20</text><line class="gx" x1="376.2" y1="30" x2="376.2" y2="332"/><text class="ax" x="376.2" y="352" text-anchor="middle">-16</text><line class="gx" x1="499.5" y1="30" x2="499.5" y2="332"/><text class="ax" x="499.5" y="352" text-anchor="middle">-12</text><line class="gx" x1="622.8" y1="30" x2="622.8" y2="332"/><text class="ax" x="622.8" y="352" text-anchor="middle">-8</text><line class="gx" x1="746.1" y1="30" x2="746.1" y2="332"/><text class="ax" x="746.1" y="352" text-anchor="middle">-4</text><line class="gx" x1="869.4" y1="30" x2="869.4" y2="332"/><text class="ax" x="869.4" y="352" text-anchor="middle">+0</text><line class="gx" x1="992.7" y1="30" x2="992.7" y2="332"/><text class="ax" x="992.7" y="352" text-anchor="middle">+4</text><line class="gx" x1="1116.0" y1="30" x2="1116.0" y2="332"/><text class="ax" x="1116.0" y="352" text-anchor="middle">+8</text><line class="gy" x1="68" y1="105.5" x2="1116" y2="105.5"/><line class="gy" x1="68" y1="181.0" x2="1116" y2="181.0"/><line class="gy" x1="68" y1="256.5" x2="1116" y2="256.5"/>
+<rect class="win" x="669.1" y="30" width="200.4" height="302"/>
+<path class="band" d="M68.0,251.6 L71.7,251.7 L75.4,251.8 L79.1,251.9 L82.8,252.0 L86.5,252.1 L90.2,252.2 L93.9,252.3 L97.6,252.4 L101.3,252.5 L105.0,252.6 L108.7,252.7 L112.4,252.7 L116.1,252.8 L119.8,252.9 L123.5,253.0 L127.2,253.1 L130.9,253.2 L134.6,253.3 L138.3,253.4 L142.0,253.4 L145.7,253.5 L149.4,253.6 L153.1,253.7 L156.8,253.7 L160.5,253.8 L164.2,253.9 L167.9,254.0 L171.6,254.0 L175.3,254.1 L179.0,254.2 L182.7,254.2 L186.4,254.3 L190.1,254.3 L193.8,254.4 L197.5,254.4 L201.2,254.5 L204.9,254.5 L208.6,254.6 L212.3,254.6 L216.0,254.7 L219.7,254.7 L223.4,254.8 L227.0,254.8 L230.7,254.8 L234.4,254.9 L238.1,254.9 L241.8,254.9 L245.5,254.9 L249.2,254.9 L252.9,255.0 L256.6,255.0 L260.3,255.0 L264.0,255.0 L267.7,255.0 L271.4,255.0 L275.1,255.0 L278.8,255.0 L282.5,255.0 L286.2,254.9 L289.9,254.9 L293.6,254.9 L297.3,254.9 L301.0,254.8 L304.7,254.8 L308.4,254.8 L312.1,254.7 L315.8,254.6 L319.5,254.6 L323.2,254.5 L326.9,254.5 L330.6,254.4 L334.3,254.3 L338.0,254.2 L341.7,254.1 L345.4,254.0 L349.1,253.9 L352.8,253.8 L356.5,253.7 L360.2,253.5 L363.9,253.4 L367.6,253.3 L371.3,253.1 L375.0,252.9 L378.7,252.8 L382.4,252.6 L386.1,252.4 L389.8,252.2 L393.5,252.0 L397.2,251.8 L400.9,251.5 L404.6,251.3 L408.3,251.1 L412.0,250.8 L415.7,250.5 L419.4,250.2 L423.1,250.0 L426.8,249.6 L430.5,249.3 L434.2,249.0 L437.9,248.6 L441.6,248.3 L445.3,247.9 L449.0,247.5 L452.7,247.1 L456.4,246.7 L460.1,246.3 L463.8,245.8 L467.5,245.3 L471.2,244.9 L474.9,244.4 L478.6,243.8 L482.3,243.3 L486.0,242.7 L489.7,242.2 L493.4,241.6 L497.1,240.9 L500.8,240.3 L504.5,239.7 L508.2,239.0 L511.9,238.3 L515.6,237.5 L519.3,236.8 L523.0,236.0 L526.7,235.2 L530.4,234.4 L534.1,233.6 L537.8,232.7 L541.4,231.8 L545.1,230.9 L548.8,230.0 L552.5,229.0 L556.2,228.0 L559.9,227.0 L563.6,225.9 L567.3,224.9 L571.0,223.7 L574.7,222.6 L578.4,221.5 L582.1,220.3 L585.8,219.0 L589.5,217.8 L593.2,216.5 L596.9,215.2 L600.6,213.9 L604.3,212.5 L608.0,211.1 L611.7,209.7 L615.4,208.2 L619.1,206.8 L622.8,205.3 L626.5,203.7 L630.2,202.1 L633.9,200.6 L637.6,198.9 L641.3,197.3 L645.0,195.6 L648.7,193.9 L652.4,192.2 L656.1,190.4 L659.8,188.6 L663.5,186.8 L667.2,185.0 L670.9,183.2 L674.6,181.3 L678.3,179.4 L682.0,177.5 L685.7,175.5 L689.4,173.6 L693.1,171.6 L696.8,169.7 L700.5,167.7 L704.2,165.6 L707.9,163.6 L711.6,161.6 L715.3,159.5 L719.0,157.5 L722.7,155.4 L726.4,153.4 L730.1,151.3 L733.8,149.2 L737.5,147.1 L741.2,145.0 L744.9,143.0 L748.6,140.9 L752.3,138.8 L756.0,136.7 L759.7,134.7 L763.4,132.6 L767.1,130.6 L770.8,128.5 L774.5,126.5 L778.2,124.5 L781.9,122.5 L785.6,120.5 L789.3,118.5 L793.0,116.5 L796.7,114.6 L800.4,112.7 L804.1,110.8 L807.8,108.9 L811.5,107.0 L815.2,105.2 L818.9,103.3 L822.6,101.5 L826.3,99.8 L830.0,98.0 L833.7,96.3 L837.4,94.6 L841.1,92.9 L844.8,91.3 L848.5,89.7 L852.2,88.1 L855.8,86.5 L859.5,85.0 L863.2,83.5 L866.9,82.0 L870.6,80.5 L874.3,79.1 L878.0,77.7 L881.7,76.4 L885.4,75.0 L889.1,73.7 L892.8,72.4 L896.5,71.2 L900.2,70.0 L903.9,68.8 L907.6,67.6 L911.3,66.5 L915.0,65.4 L918.7,64.3 L922.4,63.2 L926.1,62.2 L929.8,61.2 L933.5,60.2 L937.2,59.3 L940.9,58.4 L944.6,57.5 L948.3,56.6 L952.0,55.7 L955.7,54.9 L959.4,54.1 L963.1,53.3 L966.8,52.6 L970.5,51.8 L974.2,51.1 L977.9,50.4 L981.6,49.7 L985.3,49.1 L989.0,48.4 L992.7,47.8 L996.4,47.2 L1000.1,46.6 L1003.8,46.1 L1007.5,45.5 L1011.2,45.0 L1014.9,44.5 L1018.6,44.0 L1022.3,43.5 L1026.0,43.1 L1029.7,42.6 L1033.4,42.2 L1037.1,41.8 L1040.8,41.4 L1044.5,41.0 L1048.2,40.6 L1051.9,40.2 L1055.6,39.9 L1059.3,39.5 L1063.0,39.2 L1066.7,38.9 L1070.4,38.6 L1074.1,38.3 L1077.8,38.0 L1081.5,37.7 L1085.2,37.5 L1088.9,37.2 L1092.6,37.0 L1096.3,36.7 L1100.0,36.5 L1103.7,36.3 L1107.4,36.1 L1111.1,35.9 L1114.8,35.7 L1114.8,61.6 L1111.1,61.9 L1107.4,62.2 L1103.7,62.5 L1100.0,62.7 L1096.3,63.0 L1092.6,63.3 L1088.9,63.7 L1085.2,64.0 L1081.5,64.3 L1077.8,64.7 L1074.1,65.0 L1070.4,65.4 L1066.7,65.7 L1063.0,66.1 L1059.3,66.5 L1055.6,66.9 L1051.9,67.4 L1048.2,67.8 L1044.5,68.2 L1040.8,68.7 L1037.1,69.2 L1033.4,69.7 L1029.7,70.2 L1026.0,70.7 L1022.3,71.2 L1018.6,71.8 L1014.9,72.3 L1011.2,72.9 L1007.5,73.5 L1003.8,74.1 L1000.1,74.8 L996.4,75.4 L992.7,76.1 L989.0,76.8 L985.3,77.5 L981.6,78.2 L977.9,79.0 L974.2,79.8 L970.5,80.5 L966.8,81.4 L963.1,82.2 L959.4,83.1 L955.7,83.9 L952.0,84.8 L948.3,85.8 L944.6,86.7 L940.9,87.7 L937.2,88.7 L933.5,89.7 L929.8,90.8 L926.1,91.9 L922.4,93.0 L918.7,94.1 L915.0,95.3 L911.3,96.5 L907.6,97.7 L903.9,99.0 L900.2,100.2 L896.5,101.5 L892.8,102.9 L889.1,104.2 L885.4,105.6 L881.7,107.0 L878.0,108.5 L874.3,110.0 L870.6,111.5 L866.9,113.0 L863.2,114.6 L859.5,116.2 L855.8,117.8 L852.2,119.4 L848.5,121.1 L844.8,122.8 L841.1,124.6 L837.4,126.3 L833.7,128.1 L830.0,129.9 L826.3,131.8 L822.6,133.6 L818.9,135.5 L815.2,137.4 L811.5,139.4 L807.8,141.3 L804.1,143.3 L800.4,145.3 L796.7,147.3 L793.0,149.4 L789.3,151.4 L785.6,153.5 L781.9,155.6 L778.2,157.7 L774.5,159.8 L770.8,162.0 L767.1,164.1 L763.4,166.3 L759.7,168.4 L756.0,170.6 L752.3,172.8 L748.6,174.9 L744.9,177.1 L741.2,179.3 L737.5,181.5 L733.8,183.7 L730.1,185.8 L726.4,188.0 L722.7,190.2 L719.0,192.4 L715.3,194.5 L711.6,196.7 L707.9,198.8 L704.2,200.9 L700.5,203.1 L696.8,205.2 L693.1,207.2 L689.4,209.3 L685.7,211.4 L682.0,213.4 L678.3,215.4 L674.6,217.4 L670.9,219.4 L667.2,221.4 L663.5,223.3 L659.8,225.2 L656.1,227.1 L652.4,229.0 L648.7,230.9 L645.0,232.7 L641.3,234.5 L637.6,236.2 L633.9,238.0 L630.2,239.7 L626.5,241.4 L622.8,243.0 L619.1,244.7 L615.4,246.3 L611.7,247.8 L608.0,249.4 L604.3,250.9 L600.6,252.4 L596.9,253.8 L593.2,255.3 L589.5,256.7 L585.8,258.0 L582.1,259.4 L578.4,260.7 L574.7,262.0 L571.0,263.2 L567.3,264.5 L563.6,265.7 L559.9,266.8 L556.2,268.0 L552.5,269.1 L548.8,270.2 L545.1,271.3 L541.4,272.3 L537.8,273.4 L534.1,274.4 L530.4,275.3 L526.7,276.3 L523.0,277.2 L519.3,278.1 L515.6,279.0 L511.9,279.9 L508.2,280.7 L504.5,281.5 L500.8,282.3 L497.1,283.1 L493.4,283.8 L489.7,284.6 L486.0,285.3 L482.3,286.0 L478.6,286.7 L474.9,287.3 L471.2,288.0 L467.5,288.6 L463.8,289.2 L460.1,289.8 L456.4,290.4 L452.7,291.0 L449.0,291.5 L445.3,292.1 L441.6,292.6 L437.9,293.1 L434.2,293.6 L430.5,294.1 L426.8,294.5 L423.1,295.0 L419.4,295.4 L415.7,295.9 L412.0,296.3 L408.3,296.7 L404.6,297.1 L400.9,297.5 L397.2,297.9 L393.5,298.3 L389.8,298.6 L386.1,299.0 L382.4,299.3 L378.7,299.7 L375.0,300.0 L371.3,300.3 L367.6,300.7 L363.9,301.0 L360.2,301.3 L356.5,301.6 L352.8,301.8 L349.1,302.1 L345.4,302.4 L341.7,302.7 L338.0,302.9 L334.3,303.2 L330.6,303.5 L326.9,303.7 L323.2,303.9 L319.5,304.2 L315.8,304.4 L312.1,304.6 L308.4,304.9 L304.7,305.1 L301.0,305.3 L297.3,305.5 L293.6,305.7 L289.9,305.9 L286.2,306.1 L282.5,306.3 L278.8,306.5 L275.1,306.7 L271.4,306.9 L267.7,307.1 L264.0,307.3 L260.3,307.5 L256.6,307.6 L252.9,307.8 L249.2,308.0 L245.5,308.1 L241.8,308.3 L238.1,308.5 L234.4,308.6 L230.7,308.8 L227.0,309.0 L223.4,309.1 L219.7,309.3 L216.0,309.4 L212.3,309.6 L208.6,309.8 L204.9,309.9 L201.2,310.1 L197.5,310.2 L193.8,310.4 L190.1,310.5 L186.4,310.6 L182.7,310.8 L179.0,310.9 L175.3,311.1 L171.6,311.2 L167.9,311.4 L164.2,311.5 L160.5,311.6 L156.8,311.8 L153.1,311.9 L149.4,312.1 L145.7,312.2 L142.0,312.3 L138.3,312.5 L134.6,312.6 L130.9,312.7 L127.2,312.9 L123.5,313.0 L119.8,313.1 L116.1,313.3 L112.4,313.4 L108.7,313.5 L105.0,313.7 L101.3,313.8 L97.6,313.9 L93.9,314.1 L90.2,314.2 L86.5,314.3 L82.8,314.5 L79.1,314.6 L75.4,314.7 L71.7,314.9 L68.0,315.0 Z" fill="url(#bd)"/>
+<line class="th" x1="68" y1="108.5" x2="1116" y2="108.5"/>
+<text class="lab th-l" x="74" y="100.5">action threshold</text>
+<path class="obs" d="M68.0,273.7 L71.7,270.2 L75.4,268.6 L79.1,268.0 L82.8,266.5 L86.5,265.7 L90.2,267.6 L93.9,268.8 L97.6,266.4 L101.3,263.5 L105.0,263.9 L108.7,265.8 L112.4,266.8 L116.1,268.5 L119.8,271.8 L123.5,273.4 L127.2,271.1 L130.9,269.0 L134.6,270.1 L138.3,271.7 L142.0,271.3 L145.7,271.1 L149.4,271.7 L153.1,270.1 L156.8,265.8 L160.5,263.2 L164.2,264.5 L167.9,266.2 L171.6,266.2 L175.3,266.7 L179.0,268.1 L182.7,267.7 L186.4,265.6 L190.1,266.2 L193.8,270.1 L197.5,272.9 L201.2,272.9 L204.9,272.7 L208.6,272.9 L212.3,270.9 L216.0,267.7 L219.7,267.6 L223.4,269.9 L227.0,270.2 L230.7,267.8 L234.4,266.1 L238.1,265.6 L241.8,263.9 L245.5,262.6 L249.2,264.9 L252.9,269.1 L256.6,270.4 L260.3,269.2 L264.0,269.1 L267.7,270.1 L271.4,269.8 L275.1,269.7 L278.8,272.2 L282.5,274.7 L286.2,273.2 L289.9,269.5 L293.6,267.6 L297.3,267.1 L301.0,265.8 L304.7,265.1 L308.4,267.0 L312.1,268.6 L315.8,266.6 L319.5,263.9 L323.2,264.4 L326.9,266.6 L330.6,267.8 L334.3,269.3 L338.0,272.5 L341.7,274.0 L345.4,271.6 L349.1,269.1 L352.8,269.8 L356.5,271.3 L360.2,270.8 L363.9,270.3 L367.6,270.7 L371.3,269.3 L375.0,265.1 L378.7,262.6 L382.4,264.1 L386.1,266.2 L389.8,266.5 L393.5,267.1 L397.2,268.7 L400.9,268.6 L404.6,266.6 L408.3,267.0 L412.0,270.7 L415.7,273.5 L419.4,273.2 L423.1,272.6 L426.8,272.5 L430.5,270.4 L434.2,267.1 L437.9,266.6 L441.6,269.0 L445.3,269.5 L449.0,267.2 L452.7,265.6 L456.4,265.3 L460.1,264.1 L463.8,263.1 L467.5,265.5 L471.2,269.8 L474.9,271.4 L478.6,270.1 L482.3,269.8 L486.0,270.7 L489.7,270.3 L493.4,269.8 L497.1,271.9 L500.8,274.2 L504.5,272.7 L508.2,268.7 L511.9,266.6 L515.6,266.3 L519.3,265.1 L523.0,264.6 L526.7,266.7 L530.4,268.6 L534.1,267.0 L537.8,264.4 L541.4,265.0 L545.1,267.4 L548.8,268.7 L552.5,270.2 L556.2,273.1 L559.9,274.5 L563.6,271.9 L567.3,269.0 L571.0,269.4 L574.7,270.7 L578.4,270.1 L582.1,269.4 L585.8,269.8 L589.5,268.5 L593.2,264.6 L596.9,262.2 L600.6,263.9 L604.3,266.5 L608.0,267.1 L611.7,267.7 L615.4,269.5 L619.1,269.5 L622.8,267.5 L626.5,267.7 L630.2,271.2 L633.9,273.8 L637.6,273.3 L641.3,272.3 L645.0,271.9 L648.7,269.7 L652.4,266.3 L656.1,265.7 L659.8,268.1 L663.5,268.9 L667.2,266.8 L670.9,265.3 L674.6,265.3 L678.3,264.6 L682.0,263.7 L685.7,266.2 L689.4,270.6 L693.1,272.3 L696.8,270.9 L700.5,270.3 L704.2,271.0 L707.9,270.5 L711.6,269.7 L715.3,271.4 L719.0,273.5 L722.7,271.9 L726.4,267.8 L730.1,265.7 L733.8,265.5 L737.5,264.7 L741.2,264.3 L744.9,266.5 L748.6,268.8 L752.3,267.5 L756.0,265.1 L759.7,265.8 L763.4,268.3 L767.1,269.7 L770.8,270.9 L774.5,273.5 L778.2,274.7 L781.9,272.0 L785.6,268.7 L789.3,268.7 L793.0,269.9 L796.7,269.4 L800.4,268.5 L804.1,268.9 L807.8,267.9 L811.5,264.3 L815.2,262.0 L818.9,263.9 L822.6,266.9 L826.3,267.8 L830.0,268.5 L833.7,270.2 L837.4,270.4 L841.1,268.4 L844.8,268.2 L848.5,271.4 L852.2,274.0 L855.8,273.2 L859.5,271.8 L863.2,271.1 L866.9,268.9 L870.6,242.7 L874.3,235.6 L878.0,230.2 L881.7,221.9 L885.4,209.2 L889.1,195.5 L892.8,182.3 L896.5,167.9 L900.2,153.1 L903.9,141.8 L907.6,133.5 L911.3,123.8 L915.0,112.4 L918.7,103.0 L922.4,96.6 L926.1,90.4 L929.8,84.9 L933.5,82.7 L937.2,82.0 L940.9,78.4 L944.6,72.7 L948.3,69.2 L952.0,68.4 L955.7,67.2 L959.4,66.5 L963.1,68.5 L966.8,70.8 L970.5,69.7 L974.2,67.2 L977.9,67.6 L981.6,70.1 L985.3,71.4 L989.0,72.3 L992.7,74.5 L996.4,75.4 L1000.1,72.5 L1003.8,68.9 L1007.5,68.6 L1011.2,69.8 L1014.9,69.3 L1018.6,68.4 L1022.3,68.8 L1026.0,68.1 L1029.7,64.9 L1033.4,62.8 L1037.1,64.9 L1040.8,68.2 L1044.5,69.4 L1048.2,70.0 L1051.9,71.7 L1055.6,71.9 L1059.3,69.8 L1063.0,69.3 L1066.7,72.1 L1070.4,74.5 L1074.1,73.5 L1077.8,71.7 L1081.5,70.9 L1085.2,68.8 L1088.9,65.4 L1092.6,64.7 L1096.3,67.3 L1100.0,68.8 L1103.7,67.4 L1107.4,66.1 L1111.1,66.7 L1114.8,66.6"/>
+<path class="state" d="M68.0,283.3 L71.7,283.3 L75.4,283.3 L79.1,283.2 L82.8,283.2 L86.5,283.2 L90.2,283.2 L93.9,283.2 L97.6,283.2 L101.3,283.1 L105.0,283.1 L108.7,283.1 L112.4,283.1 L116.1,283.1 L119.8,283.0 L123.5,283.0 L127.2,283.0 L130.9,283.0 L134.6,282.9 L138.3,282.9 L142.0,282.9 L145.7,282.9 L149.4,282.8 L153.1,282.8 L156.8,282.8 L160.5,282.7 L164.2,282.7 L167.9,282.7 L171.6,282.6 L175.3,282.6 L179.0,282.5 L182.7,282.5 L186.4,282.5 L190.1,282.4 L193.8,282.4 L197.5,282.3 L201.2,282.3 L204.9,282.2 L208.6,282.2 L212.3,282.1 L216.0,282.1 L219.7,282.0 L223.4,281.9 L227.0,281.9 L230.7,281.8 L234.4,281.8 L238.1,281.7 L241.8,281.6 L245.5,281.5 L249.2,281.5 L252.9,281.4 L256.6,281.3 L260.3,281.2 L264.0,281.1 L267.7,281.0 L271.4,280.9 L275.1,280.9 L278.8,280.7 L282.5,280.6 L286.2,280.5 L289.9,280.4 L293.6,280.3 L297.3,280.2 L301.0,280.1 L304.7,279.9 L308.4,279.8 L312.1,279.7 L315.8,279.5 L319.5,279.4 L323.2,279.2 L326.9,279.1 L330.6,278.9 L334.3,278.7 L338.0,278.6 L341.7,278.4 L345.4,278.2 L349.1,278.0 L352.8,277.8 L356.5,277.6 L360.2,277.4 L363.9,277.2 L367.6,277.0 L371.3,276.7 L375.0,276.5 L378.7,276.2 L382.4,276.0 L386.1,275.7 L389.8,275.4 L393.5,275.1 L397.2,274.8 L400.9,274.5 L404.6,274.2 L408.3,273.9 L412.0,273.6 L415.7,273.2 L419.4,272.8 L423.1,272.5 L426.8,272.1 L430.5,271.7 L434.2,271.3 L437.9,270.9 L441.6,270.4 L445.3,270.0 L449.0,269.5 L452.7,269.0 L456.4,268.5 L460.1,268.0 L463.8,267.5 L467.5,267.0 L471.2,266.4 L474.9,265.8 L478.6,265.3 L482.3,264.6 L486.0,264.0 L489.7,263.4 L493.4,262.7 L497.1,262.0 L500.8,261.3 L504.5,260.6 L508.2,259.8 L511.9,259.1 L515.6,258.3 L519.3,257.5 L523.0,256.6 L526.7,255.8 L530.4,254.9 L534.1,254.0 L537.8,253.0 L541.4,252.1 L545.1,251.1 L548.8,250.1 L552.5,249.1 L556.2,248.0 L559.9,246.9 L563.6,245.8 L567.3,244.7 L571.0,243.5 L574.7,242.3 L578.4,241.1 L582.1,239.8 L585.8,238.5 L589.5,237.2 L593.2,235.9 L596.9,234.5 L600.6,233.1 L604.3,231.7 L608.0,230.2 L611.7,228.8 L615.4,227.2 L619.1,225.7 L622.8,224.1 L626.5,222.5 L630.2,220.9 L633.9,219.3 L637.6,217.6 L641.3,215.9 L645.0,214.1 L648.7,212.4 L652.4,210.6 L656.1,208.8 L659.8,206.9 L663.5,205.1 L667.2,203.2 L670.9,201.3 L674.6,199.4 L678.3,197.4 L682.0,195.5 L685.7,193.5 L689.4,191.5 L693.1,189.4 L696.8,187.4 L700.5,185.4 L704.2,183.3 L707.9,181.2 L711.6,179.1 L715.3,177.0 L719.0,174.9 L722.7,172.8 L726.4,170.7 L730.1,168.6 L733.8,166.4 L737.5,164.3 L741.2,162.2 L744.9,160.0 L748.6,157.9 L752.3,155.8 L756.0,153.7 L759.7,151.5 L763.4,149.4 L767.1,147.3 L770.8,145.2 L774.5,143.2 L778.2,141.1 L781.9,139.0 L785.6,137.0 L789.3,135.0 L793.0,133.0 L796.7,131.0 L800.4,129.0 L804.1,127.0 L807.8,125.1 L811.5,123.2 L815.2,121.3 L818.9,119.4 L822.6,117.6 L826.3,115.8 L830.0,114.0 L833.7,112.2 L837.4,110.5 L841.1,108.7 L844.8,107.1 L848.5,105.4 L852.2,103.8 L855.8,102.2 L859.5,100.6 L863.2,99.0 L866.9,97.5 L870.6,96.0 L874.3,94.5 L878.0,93.1 L881.7,91.7 L885.4,90.3 L889.1,89.0 L892.8,87.7 L896.5,86.4 L900.2,85.1 L903.9,83.9 L907.6,82.7 L911.3,81.5 L915.0,80.3 L918.7,79.2 L922.4,78.1 L926.1,77.0 L929.8,76.0 L933.5,75.0 L937.2,74.0 L940.9,73.0 L944.6,72.1 L948.3,71.2 L952.0,70.3 L955.7,69.4 L959.4,68.6 L963.1,67.8 L966.8,67.0 L970.5,66.2 L974.2,65.4 L977.9,64.7 L981.6,64.0 L985.3,63.3 L989.0,62.6 L992.7,62.0 L996.4,61.3 L1000.1,60.7 L1003.8,60.1 L1007.5,59.5 L1011.2,59.0 L1014.9,58.4 L1018.6,57.9 L1022.3,57.4 L1026.0,56.9 L1029.7,56.4 L1033.4,55.9 L1037.1,55.5 L1040.8,55.0 L1044.5,54.6 L1048.2,54.2 L1051.9,53.8 L1055.6,53.4 L1059.3,53.0 L1063.0,52.7 L1066.7,52.3 L1070.4,52.0 L1074.1,51.6 L1077.8,51.3 L1081.5,51.0 L1085.2,50.7 L1088.9,50.4 L1092.6,50.2 L1096.3,49.9 L1100.0,49.6 L1103.7,49.4 L1107.4,49.1 L1111.1,48.9 L1114.8,48.7"/>
+<line class="v1" x1="669.1" y1="30" x2="669.1" y2="332"/>
+<line class="v2" x1="869.4" y1="30" x2="869.4" y2="332"/>
+<circle class="dot" cx="669.1" cy="108.5" r="4.5"/>
+<text class="lab l1" x="661.1" y="44" text-anchor="end">forecast crosses</text>
+<text class="lab l2" x="877.4" y="44">gauge moves</text>
+<text class="gap" x="769.2" y="316" text-anchor="middle">6.5 h</text>
+<text class="ax yl" x="68" y="19">state (normalised)</text>
+<text class="ax xl" x="1116" y="370" text-anchor="end">hours relative to event</text>
+</svg></div>
+<figcaption><b>Figure 1</b>The estimated hidden state (solid) crosses the action threshold
+6.5 hours before the observable instrument (thin) moves. The band is the estimator's confidence.
+Illustration of the method, not a data plot; the 6.5 h interval is the lead reproduced on
+held-out commercial operating history under benchmark OE/01.<sup>S8</sup></figcaption>
+</figure>
+</div></section>
+
+<section id="method" class="full"><div class="doc">
+<p class="snum gut">§ 2</p>
+<div class="col">
+<h2>Three steps. One of them changes by domain.</h2>
+<p>Steps two and three are identical whether the system is a recirculating farm, an activated
+sludge reactor, a fermenter or a sealed habitat. Only the process model is rewritten. That is
+why one engine serves seven markets, and why the work compounds across every deployment.</p>
+<ol class="steps"><li><div><h3>Write the biology down</h3><p>A mechanistic model of the system: reaction kinetics, transport, uptake, population dynamics. This is the only step that changes between an oyster hatchery and a habitat, and it is where the domain work lives.</p></div></li><li><div><h3>Solve backwards</h3><p>Bayesian state estimation runs that model against the sensors already installed and recovers the state variables no instrument reports, with an uncertainty band, every cycle.</p></div></li><li><div><h3>Integrate forward</h3><p>Push the recovered state ahead in time under the planned operating strategy. The warning hours come from here. The output is a forecast with a stated confidence, not an alarm.</p></div></li></ol>
+</div>
+<p class="note gut" data-rv><b>On deployment</b>The engine is read-only. It reads existing
+telemetry and returns a forecast with a confidence band. It connects to no control loop and
+changes no set point. Autonomous control is roadmap, not product.</p>
+</div></section>
+
+<section id="systems" class="full"><div class="doc">
+<p class="snum gut">§ 3</p>
+<div class="col">
+<h2>Seven markets, one estimator, one platform beneath them.</h2>
+<p>An aquaculture operator should be able to buy an aquaculture product rather than a space
+product. The markets differ in buyer, regulation and sales cycle. What is shared is the engine,
+and the engine is the part that compounds.</p>
+</div>
+<div class="specs full"><a class="spec" href="../current.html" data-rv>
+<span class="disc"><img src="assets/img/raceways.webp" alt="" loading="lazy"></span>
+<span class="cap"><span class="id">OE/01</span>
+<span class="nm">CURRENT</span>
+<span class="mk">Aquaculture</span></span></a><a class="spec" href="../canopy.html" data-rv>
+<span class="disc"><img src="assets/img/cea.webp" alt="" loading="lazy"></span>
+<span class="cap"><span class="id">OE/02</span>
+<span class="nm">CANOPY</span>
+<span class="mk">Controlled agriculture</span></span></a><a class="spec" href="../aquifer.html" data-rv>
+<span class="disc"><img src="assets/img/growhouse.webp" alt="" loading="lazy"></span>
+<span class="cap"><span class="id">OE/03</span>
+<span class="nm">AQUIFER</span>
+<span class="mk">Hydroponics and water</span></span></a><a class="spec" href="../reclaim.html" data-rv>
+<span class="disc"><img src="assets/img/clarifiers.webp" alt="" loading="lazy"></span>
+<span class="cap"><span class="id">OE/04</span>
+<span class="nm">RECLAIM</span>
+<span class="mk">Bioremediation</span></span></a><a class="spec" href="../culture.html" data-rv>
+<span class="disc"><img src="assets/img/bioprocess.webp" alt="" loading="lazy"></span>
+<span class="cap"><span class="id">OE/05</span>
+<span class="nm">CULTURE</span>
+<span class="mk">Bioprocessing</span></span></a><a class="spec" href="../orbis.html" data-rv>
+<span class="disc"><img src="assets/img/life-support.webp" alt="" loading="lazy"></span>
+<span class="cap"><span class="id">OE/06</span>
+<span class="nm">ORBIS</span>
+<span class="mk">Space and life support</span></span></a><a class="spec" href="../field.html" data-rv>
+<span class="disc"><img src="assets/img/delta.webp" alt="" loading="lazy"></span>
+<span class="cap"><span class="id">OE/07</span>
+<span class="nm">FIELD</span>
+<span class="mk">Open environments</span></span></a><a class="spec" href="../nexus.html" data-rv>
+<span class="disc"><img src="assets/img/diffgrid.webp" alt="" loading="lazy"></span>
+<span class="cap"><span class="id">Shared</span>
+<span class="nm">NEXUS</span>
+<span class="mk">Platform layer</span></span></a></div>
+</div></section>
+
+<section id="record" class="full"><div class="doc">
+<p class="snum gut">§ 4</p>
+<div class="col">
+<h2>Every figure resolves to a run.</h2>
+<p>Simulation results are labelled as simulation. The aquaculture result is a held-out backtest
+on real commercial operating history. There is no production deployment and none is implied.
+Live process results are published to this same record as operator evaluations complete.</p>
+</div>
+<div class="full" data-rv style="margin-top:clamp(28px,3.4vw,44px)">
+<table>
+<caption><b>Table 1</b>Validation record. Benchmarks are the reference models each field already
+uses to evaluate control strategies.<sup>S4,S5,S6,S7</sup></caption>
+<thead><tr><th>Status</th><th>Ref</th><th>Benchmark</th><th>Result</th></tr></thead>
+<tbody><tr><td>Complete</td><td class="ref">OE/01</td><td class="what">Commercial farm history<span>Held-out backtest on real land-based operating data</span></td><td>6.5 h of usable lead reproduced ahead of the event.</td></tr><tr><td>In progress</td><td class="ref">OE/01</td><td class="what">Independent laboratory<span>Biofilter-health estimates checked against laboratory assay at a third-party research facility</span></td><td>Independent measurement validation. In progress.</td></tr><tr><td>In design</td><td class="ref">OE/02</td><td class="what">Retrospective test protocol<span>Controlled environment agriculture</span></td><td>Protocol in design with operators. Result published on completion of the run.</td></tr><tr><td>In design</td><td class="ref">OE/03</td><td class="what">Coupled-loop test protocol<span>Hydroponic nutrient loops and aquaponics</span></td><td>Scoping with operators. Runs the coupled form of the OE/01 and OE/02 estimators.</td></tr><tr><td>Complete</td><td class="ref">OE/04</td><td class="what">IWA BSM1<span>Standard activated sludge benchmark, dissolved oxygen channel</span></td><td>Prediction error reduced 92%. Excursions identified more than 12 h ahead.</td></tr><tr><td>Complete</td><td class="ref">OE/04</td><td class="what">IWA ADM1<span>Reference anaerobic digestion model, one-step prediction</span></td><td>Error 163.7 to 0.77.</td></tr><tr><td>Complete</td><td class="ref">OE/05</td><td class="what">Dynamic flux balance, E. coli<span>One-step RMSE across complete runs</span></td><td>RMSE 0.062 to 0.011, a reduction of 82%.</td></tr><tr><td>Complete</td><td class="ref">OE/06</td><td class="what">SIMOC habitat simulator<span>60 runs, 7 configurations, Biosphere 2 and Mars models</span></td><td>98% of breaches identified pre-event. Median lead 11 h, mean 34, max 168. R squared 0.87 on hidden state. False alarm 11%.</td></tr><tr><td>Scheduled</td><td class="ref">Commercial</td><td class="what">First paid pilots<span>Terms and domains set per operator</span></td><td>Scheduled for the first half of 2027.</td></tr></tbody>
+</table>
+</div>
+</div></section>
+
+<section id="refs" class="full"><div class="doc">
+<p class="snum gut">§ 5</p>
+<div class="col">
+<h2>References.</h2>
+<ol class="refs"><li><span class="k">S1</span><span class="t">Proximar Seafood mortality incident, June 2025<span class="c">170,000 salmon lost overnight at a land-based farm in Japan after circulation pumps stopped and oxygen fell in two tanks. Reported loss NOK 12 million, about USD 1.16 million.<br>The Fish Site / SalmonBusiness, June 2025</span><a href="https://thefishsite.com/articles/major-mortality-incident-at-salmon-ras" rel="noopener">Source</a></span></li><li><span class="k">S2</span><span class="t">Sustainable Blue mortality incident, November 2023<span class="c">100,000 Atlantic salmon lost at a land-based farm in Nova Scotia after a carbon dioxide filter failed structurally. Reported loss USD 5 million, about 20 percent of stock on site.<br>WeAreAquaculture / CBC News, November 2023</span><a href="https://weareaquaculture.com/news/aquaculture/100000-salmon-mortalities-at-canadas-land-based-sustainable-blue" rel="noopener">Source</a></span></li><li><span class="k">S3</span><span class="t">Aeration share of wastewater treatment plant energy<span class="c">Aeration accounts for 25 to 60 percent of energy use across wastewater treatment plants generally, and 50 to 90 percent of plant electricity in conventional activated sludge systems specifically.<br>University of Michigan Center for Sustainable Systems, US Wastewater Treatment Factsheet; Drewnowski et al., Processes 7(5):311, 2019</span><a href="https://css.umich.edu/publications/factsheets/water/us-wastewater-treatment-factsheet" rel="noopener">Source</a></span></li><li><span class="k">S4</span><span class="t">IWA Benchmark Simulation Model No. 1 (BSM1)<span class="c">The international reference model for benchmarking control strategies on activated sludge plants.<br>Alex, Benedetti, Copp, Gernaey, Jeppsson, Nopens, Pons, Steyer and Vanrolleghem. IWA Task Group on Benchmarking of Control Strategies for WWTPs</span><a href="https://iwa-mia.org/wp-content/uploads/2019/04/BSM_TG_Tech_Report_no_1_BSM1_General_Description.pdf" rel="noopener">Source</a></span></li><li><span class="k">S5</span><span class="t">IWA Anaerobic Digestion Model No. 1 (ADM1)<span class="c">The reference structured model for anaerobic digestion processes.<br>Batstone, Keller, Angelidaki, Kalyuzhnyi, Pavlostathis, Rozzi, Sanders, Siegrist and Vavilin. Water Science and Technology 45(10):65-73, 2002</span><a href="https://iwaponline.com/wst/article/45/10/65/6034/The-IWA-Anaerobic-Digestion-Model-No-1-ADM1" rel="noopener">Source</a></span></li><li><span class="k">S6</span><span class="t">Dynamic flux balance analysis<span class="c">The standard method for modelling microbial metabolism through time, introduced on diauxic growth in E. coli.<br>Mahadevan, Edwards and Doyle. Biophysical Journal 83(3):1331-1340, 2002</span><a href="https://www.cell.com/biophysj/fulltext/S0006-3495(02)73903-9" rel="noopener">Source</a></span></li><li><span class="k">S7</span><span class="t">SIMOC, Scalable Interactive Model of an Off-world Community<span class="c">An agent-based simulator of closed life support systems, developed at Arizona State University&#x27;s School of Earth and Space Exploration and hosted by the National Geographic Society. Configurations include Biosphere 2 mission parameters.<br>Arizona State University Interplanetary Initiative</span><a href="https://simoc.space/" rel="noopener">Source</a></span></li><li><span class="k">S8</span><span class="t">Orbital Ecology internal benchmark record<span class="c">Every figure on this site resolves to the validation record, where run counts, configurations, error reductions, lead times and false alarm rates are stated in full. Simulation results are labelled as simulation. All results to date are benchmark validation and retrospective backtesting. Live process results are published to the same record as operator evaluations complete.<br>Orbital Ecology, benchmarks OE/01 and OE/04 through OE/06</span></span></li></ol>
+</div>
+</div></section>
+
+</div></div>
+
+<section class="close"><div class="sheet"><div class="doc">
+<p class="snum gut">§ 6</p>
+<div class="col">
+<h2>Send one export. Get the answer in three weeks.</h2>
+<p>You send a historical sensor export with the outcome window withheld. We run it blind and
+report how many hours of warning the engine would have given, and how often it would have been
+wrong on that same history. No fee, no integration, no connection to any live system. The file
+is deleted afterwards.</p>
+<div class="btns">
+<a class="b b1" href="../evaluation.html">Request an evaluation</a>
+<a class="b b2" href="https://calendar.app.google/F8VHXD7MMtXNDtKy9">Book a call</a>
+</div>
+</div>
+</div></div></section>
+
+<div class="sheet"><div class="colo"><div class="r">
+<span>&copy; 2026 Orbital Ecology &nbsp;·&nbsp; 749 York Court, San Diego, CA 92109</span>
+<span>Simulation-validated and backtested. No production deployment.</span>
+<span><a href="mailto:cameron@orbitalecology.com">cameron@orbitalecology.com</a></span>
+</div></div></div>
+
+</main>
+<script>
+(function(){
+ var rm=matchMedia("(prefers-reduced-motion:reduce)").matches;
+ var S="[data-rv],figure,.specs,table,.steps";
+ if(rm||!("IntersectionObserver" in window)){
+   document.querySelectorAll(S).forEach(function(e){e.classList.add("rv")}); return; }
+ document.querySelectorAll(".specs").forEach(function(g){
+   [].forEach.call(g.children,function(c,i){c.style.setProperty("--d",(i*70)+"ms")}); });
+ var io=new IntersectionObserver(function(es){
+   es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("rv"); io.unobserve(e.target); } });
+ },{rootMargin:"0px 0px -10% 0px",threshold:.1});
+ document.querySelectorAll(S).forEach(function(e){io.observe(e)});
+})();
+</script></body></html>

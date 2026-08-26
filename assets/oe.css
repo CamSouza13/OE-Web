@@ -156,6 +156,7 @@ body.hero-page .nav{position:fixed;top:0;left:0;right:0}
  animation:bp 2.6s ease-in-out infinite;box-shadow:0 0 0 0 rgba(20,67,47,.42)}
 @keyframes bp{0%,100%{box-shadow:0 0 0 0 rgba(20,67,47,.34)}70%{box-shadow:0 0 0 8px rgba(20,67,47,0)}}
 h1.big{font-size:clamp(42px,5.6vw,84px);line-height:1.02;letter-spacing:-.018em;max-width:none}
+h1.big.two{font-size:clamp(32px,4.3vw,64px);line-height:1.06}
 .htop{display:grid;grid-template-columns:1.16fr .84fr;gap:clamp(28px,4vw,72px);align-items:end}
 @media(max-width:1080px){.htop{grid-template-columns:1fr;gap:36px}}
 .hmedia{margin:0;opacity:0;animation:fin 1s var(--ease) .5s forwards}
@@ -495,3 +496,30 @@ footer{background:var(--bg);border-top:1px solid var(--ln)}
  border-top:1px solid #242830}
 .stmt li::before{content:"";position:absolute;left:0;top:26px;width:12px;height:1px;background:var(--acd)}
 .stmt li b{color:#F6F7F9;font-weight:600}
+
+/* ---------- legal pages ---------- */
+.legal{max-width:74ch;margin-top:clamp(40px,4.6vw,68px)}
+.legal h2{font-size:clamp(22px,2.3vw,31px);line-height:1.18;margin:clamp(38px,4vw,58px) 0 0;
+ letter-spacing:-.014em}
+.legal h2:first-child{margin-top:0}
+.legal h3{font-size:16.5px;margin:30px 0 0;letter-spacing:-.012em}
+.legal p{font-size:15.2px;line-height:1.8;color:var(--t2);margin-top:16px}
+.legal p b,.legal li b{color:var(--ink);font-weight:600}
+.legal ul{list-style:none;margin:18px 0 0;padding:0}
+.legal li{position:relative;padding:10px 0 10px 24px;font-size:14.6px;line-height:1.75;
+ color:var(--t2);border-top:1px solid var(--ln)}
+.legal li::before{content:"";position:absolute;left:0;top:21px;width:11px;height:1px;
+ background:var(--grnd)}
+.legal a{color:var(--grnd);border-bottom:1px solid rgba(20,67,47,.32)}
+.legal a:hover{border-color:var(--grnd)}
+.legal .stamp{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+ color:var(--t3);margin-top:clamp(44px,5vw,72px);padding-top:22px;border-top:1px solid var(--ln2)}
+.legal .box{border:1px solid var(--ln);background:var(--card);padding:var(--cp);margin-top:26px}
+.legal .box p{margin-top:0}
+.legal .box p+p{margin-top:12px}
+
+/* legal links in the footer bottom bar */
+.ftb .lg{display:flex;gap:20px;flex-wrap:wrap}
+.ftb .lg a{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+ color:var(--t3)}
+.ftb .lg a:hover{color:var(--ink)}
