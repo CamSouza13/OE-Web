@@ -11,7 +11,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/icon-512.png">
 <link rel="stylesheet" href="assets/fonts.css">
-<link rel="stylesheet" href="assets/oe.css"></head>
+<link rel="stylesheet" href="assets/oe.css"><script>/* reveal-on-scroll is opt-in: if oe.js never runs, the safety timer drops the flag and every block stays visible */
+var _d=document.documentElement;_d.classList.add("js");setTimeout(function(){if(!document.querySelector(".rv.shown"))_d.classList.remove("js");},1500);</script>
+</head>
 <body class="hero-page">
 <header class="nav" id="nav"><div class="nv">
  <a class="wm" href="index.html" aria-label="Orbital Ecology">
@@ -32,9 +34,12 @@
 
 <!-- ================================ HERO ================================ -->
 <!-- ================================ HERO ================================ -->
-<section class="vhero" aria-label="Earth from low orbit">
- <video src="assets/video/hero-720.mp4" autoplay muted loop playsinline
-   poster="assets/img/hero.webp"></video>
+<section class="vhero" aria-label="Closed-loop life support, vertical farming and aquaculture">
+ <div class="slides">
+  <img src="assets/img/iss.webp" alt="The International Space Station in orbit above Earth" fetchpriority="high">
+  <img src="assets/img/cea.webp" alt="Stacked hydroponic grow racks under LED lighting in a vertical farm" loading="lazy">
+  <img src="assets/img/shoal.webp" alt="A shoal of fish turning together in deep blue water" loading="lazy">
+ </div>
  <div class="wrap inner">
   <p class="lbl eye"><i></i> Orbital Ecology</p>
   <h1 class="big two">
@@ -48,6 +53,9 @@
    <a class="btn lg lt" href="demo.html">Run the engine on a sample log <span class="ar">&rarr;</span></a>
   </div>
  </div>
+ <div class="dom" aria-hidden="true"><i></i><span class="rot">
+  <span>Life support</span><span>Vertical farming</span><span>Aquaculture</span>
+ </span></div>
  <div class="cue"><span></span>Scroll</div>
 </section>
 
@@ -55,53 +63,21 @@
 <section class="thesis">
  <div class="wrap in">
   <p class="lbl rv">The thesis</p>
-  <p class="q rv">Make complex living systems reliable enough to become infrastructure.</p>
+  <p class="q rv">Making living systems dependable enough to sustain life and production at scale.</p>
  </div>
 </section>
 
-<!-- ============================ PROOF ============================ -->
-<section class="wrap sec tight" id="proof">
- <div class="hd2 rv">
-  <p class="lbl">One run, start to finish</p>
-  <h2>Capacity was 44 percent gone before the gauge moved at all.</h2>
- </div>
- <figure class="fig rv" style="margin-top:clamp(40px,4.6vw,68px)">
-  <div class="cap">
-   <div class="keys">
-    <span class="k"><i style="background:#35619C"></i>Ammonia, measured</span>
-    <span class="k"><i style="background:#2A7F55"></i>Biofilter capacity, estimated</span>
-    <span class="k"><i style="background:#A54A1C"></i>Alarm limit</span>
-   </div>
-   <p class="note">Output from the production estimator on a synthetic recirculating-salmon log.
-    The live demo runs the same engine in your browser.</p>
-  </div>
-  <svg id="hf" viewBox="0 0 1440 380" preserveAspectRatio="none" role="img"
-   aria-label="Measured ammonia stays flat while estimated biofilter capacity falls, giving 89 hours of warning before the alarm limit is crossed"></svg>
-  <div class="lgd">
-   <div><div class="v g" data-c="89" data-suffix=" h">0 h</div>
-    <div class="t">of warning before the gauge moved at all</div></div>
-   <div><div class="v" data-c="44" data-suffix="%">0%</div>
-    <div class="t">of biofilter capacity already gone at the alarm</div></div>
-   <div><div class="v">0</div>
-    <div class="t">new instruments installed to see it</div></div>
-   <div><div class="v" data-c="4760">0</div>
-    <div class="t">futures simulated to price the risk</div></div>
-  </div>
-  <p class="under">Those figures come from a synthetic log built to be legible. On real commercial
-   operating history the same method reproduced <b>6.5 hours of usable lead</b> ahead of the event.
-   <a href="#record">See the validation record &rarr;</a></p>
- </figure>
-</section>
+
 
 <!-- ============================ STAKES ============================ -->
 <section class="wrap sec" id="why">
  <div class="hd2 rv">
   <p class="lbl">The problem</p>
-  <h2>A gauge measures a consequence.</h2>
+  <h2 class="dbl"><b>A gauge tells you what has already happened.</b> We forecast forward, thousands of futures at a time.</h2>
  </div>
- <p class="lede rv">By the time a reading crosses its limit, the biological reserve that would have
-  let an operator act is already spent. The state moves for days. The gauge moves in an hour.
-  Everything expensive happens in the gap.</p>
+ <p class="lede rv">By the time a reading crosses its limit, the system may have already exhausted the
+  biological reserve that made recovery possible. The underlying state can deteriorate for days before
+  a threshold alarm is triggered. That blind spot is where losses compound.</p>
 
  <div class="stk">
   <figure class="shot rv">
@@ -138,17 +114,18 @@
   <h2>Three steps. Only the first one changes.</h2>
  </div>
  <div class="mth rv">
-  <div class="st"><i>01</i><h3>Write the biology down</h3>
-   <p>A mechanistic model of the system: reaction kinetics, transport, uptake, population
-    dynamics. This is the only step that differs between an oyster hatchery and a habitat, and
-    it is where the domain work lives.</p></div>
-  <div class="st"><i>02</i><h3>Solve backwards</h3>
-   <p>Bayesian state estimation runs that model against the sensors already installed and
-    recovers the state variables no instrument reports, with an uncertainty band, every
-    cycle.</p></div>
-  <div class="st"><i>03</i><h3>Integrate forward</h3>
-   <p>Push the recovered state ahead in time under the planned operating strategy. The warning
-    hours come from here. The output is a forecast with a stated confidence, not an alarm.</p></div>
+  <div class="st"><i>01</i><h3>Reconstruct the biology</h3>
+   <p>Write down how the system actually behaves: what reacts with what, how fast, what moves
+    where, what the organisms take up and how the population shifts. This is the only step that
+    changes between an oyster hatchery and a space habitat, and it is where most of our work
+    goes.</p></div>
+  <div class="st"><i>02</i><h3>Decipher backwards</h3>
+   <p>The estimator runs that model against the sensors already on site and works out the
+    things nothing measures directly, with an honest error bar, every cycle.</p></div>
+  <div class="st"><i>03</i><h3>Forecast forward</h3>
+   <p>Take that state and run it forward under whatever you are planning to do next. This is
+    where the warning hours come from. You get a forecast with a confidence attached to it, not
+    a red light.</p></div>
  </div>
  <div class="pipe rv">
   <div class="ph"><span>Sensors you already have</span><span>Model and estimator</span>
@@ -162,16 +139,22 @@
 <section class="wrap sec" id="products">
  <div class="hd2 rv">
   <p class="lbl">The products</p>
-  <h2>One engine. Seven front doors.</h2>
+  <h2 class="dbl"><b>Designed for closed biosystems in space.</b> Built to go further on the ground.</h2>
  </div>
- <p class="lede rv">An aquaculture operator should be able to buy an aquaculture product, not a
-  space product. The markets differ. The estimator underneath does not.</p>
+ <p class="lede rv">Aquaculture operators get a product built around their systems and their
+  decisions. Bioprocess operators get one built around theirs. The same core biological
+  state-estimation engine underneath, because a pond, a bioreactor and a space habitat all solve
+  the same problem: sustaining life inside a boundary.</p>
  <div class="idx">
-  <div class="rows rv" id="rows" role="tablist" aria-label="Products"></div>
+  <div>
+    <div class="rows rv" id="rows" role="tablist" aria-label="Products"></div>
+    <p class="fine rv" style="margin-top:30px">Four products, one estimator. The only thing that changes
+     between them is the model of the biology. That is why this is one company and not four.</p>
+   </div>
   <div class="panel rv">
    <div class="ph" id="ph"></div>
    <div class="bd">
-    <p class="kk" id="pk">OE/01 · Aquaculture</p>
+    <p class="kk" id="pk">OE/01 · Aquaculture and water systems</p>
     <h4 id="pn">CURRENT</h4>
     <p id="pp"></p>
     <div class="ev"><b id="pe">Evidence</b><span id="pv"></span></div>
@@ -183,14 +166,14 @@
 
 <!-- ============================ INK BAND ============================ -->
 <section class="ink" id="arc">
- <div class="bgi" id="parx"><img src="assets/img/diffgrid.webp" alt="" loading="lazy"></div>
+ <div class="bgi" id="parx"><img src="assets/img/hero.webp" alt="" loading="lazy"></div>
  <div class="wrap inr">
   <p class="lbl rv">The arc</p>
   <h2 class="q rv">From the mud to the moon, it is the same inverse problem.</h2>
   <p class="p rv">A wastewater reactor, a fermenter, a fish farm and a sealed habitat are the
-   same object seen at different scales: a closed loop of living chemistry, instrumented at the
-   edges, failing from the inside. Solve the state estimation problem once and the domains
-   become a sequence rather than a portfolio.</p>
+   same thing at different sizes. A closed loop of living chemistry, measured only at the edges,
+   failing from the inside out. Work out how to read that state once and you can go through the
+   domains in order instead of picking one and hoping.</p>
   <div class="arc rv">
    <div class="a"><i>NOW</i><h3>Water and protein</h3>
     <p>Aquaculture and bioremediation, where the failures are expensive and the sensors are
@@ -216,34 +199,14 @@
  </div>
  <p class="lede rv">Every completed result here is reproducible. The aquaculture figure is a
   held-out backtest on real commercial operating history. The rest run against the reference models
-  these fields already use to evaluate control strategies, so anyone can check the work.</p>
+  these fields already use to test control strategies, so you can check the work yourself.</p>
  <table class="rec rv">
   <thead><tr><th>Status</th><th>Benchmark</th><th>What was tested</th><th>Result</th></tr></thead>
   <tbody id="rec"></tbody>
  </table>
 </section>
 
-<!-- ============================ TEAM ============================ -->
-<section class="wrap sec tight" id="team">
- <div class="hd2 rv">
-  <p class="lbl">The team</p>
-  <h2>Three founders, three parts of the problem.</h2>
- </div>
- <div class="tm rv">
-  <div class="p"><div class="mono">CS</div><p class="r">Chief Executive Officer</p>
-   <h3>Cameron Souza</h3>
-   <p>Modelling, biogeochemistry and aquaculture. Owns the engine and the science, and wrote the
-    domain models behind each product.</p></div>
-  <div class="p"><div class="mono">ZC</div><p class="r">Co-founder</p>
-   <h3>Zachary Cowden</h3>
-   <p>Biology and industry. Previously at Leidos, working on biomanufacturing for space. Runs the
-    bioprocess, digestion and life support domains.</p></div>
-  <div class="p"><div class="mono">BY</div><p class="r">Co-founder</p>
-   <h3>Bernard Yong</h3>
-   <p>Markets and operations. Previously at AWS, a lawyer by training, and a former adviser on UN
-    policy. Runs commercial structure, channel and the legal interface.</p></div>
- </div>
-</section>
+
 
 <!-- ============================ CTA ============================ -->
 <section class="end">
@@ -251,9 +214,9 @@
   <div class="cpy rv">
    <p class="lbl">Evaluation</p>
    <h2>Send one export. We will tell you what it was trying to say.</h2>
-   <p>You send a historical export. We run it blind with the outcome window withheld, then report
-    how many hours of warning the engine would have given and how often it would have been wrong
-    on that same history.</p>
+   <p>Send us an export you already keep. We run it blind, with the outcome window hidden from
+    us, then tell you how many hours of warning you would have had, and how often we would have
+    cried wolf.</p>
    <ul>
     <li>No connection to any live system. No change to any control loop.</li>
     <li>No fee, and the file is deleted afterwards.</li>
@@ -266,7 +229,7 @@
     <a class="btn lg" href="evaluation.html">Request an evaluation <span class="ar">&rarr;</span></a>
     <a class="btn lg lt" href="demo.html">Run the live demo first <span class="ar">&rarr;</span></a>
     <p class="fine">Validated against the reference models these fields use, and backtested on
-     real commercial operating history. The engine is read-only by design: it estimates and
+     real commercial operating history. The engine only reads. It estimates and
      forecasts, and changes nothing in your plant.</p>
    </div>
   </div>
@@ -285,11 +248,9 @@
     biological life support, from the mud to the moon.</p>
   </div>
   <div><h4>Products</h4>
-   <a href="current.html">CURRENT &middot; Aquaculture</a>
+   <a href="current.html">CURRENT &middot; Aquaculture and water</a>
    <a href="canopy.html">CANOPY &middot; Controlled agriculture</a>
-   <a href="aquifer.html">AQUIFER &middot; Hydroponics and water</a>
-   <a href="reclaim.html">RECLAIM &middot; Bioremediation</a>
-   <a href="culture.html">CULTURE &middot; Bioprocessing</a>
+   <a href="culture.html">CULTURE &middot; Bioprocessing and bioremediation</a>
    <a href="orbis.html">ORBIS &middot; Space and life support</a>
   </div>
   <div><h4>Company</h4>
@@ -297,7 +258,6 @@
    <a href="team.html">Team</a>
    <a href="company.html">About</a>
    <a href="index.html#record">Validation record</a>
-   <a href="nexus.html">NEXUS platform</a>
    
   </div>
   <div><h4>Contact</h4>
@@ -318,113 +278,6 @@
 'use strict';
 var RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 var IO='IntersectionObserver' in window;
-/* ---------------- hero figure ----------------
-   HD is one real run of the estimator on the sample recirculating salmon log,
-   produced by the same code that runs on the live demo page. Two lanes, one
-   axis each, because the two quantities do not share units. */
-var HD={"n":336,"dt":1,"limit":0.15,"base":0.869,"alert":126,"cross":215,"thr":0.739,"meas":[0.044,0.061,0.049,0.057,0.049,0.048,0.036,0.056,0.047,0.065,0.054,0.05,0.049,0.055,0.044,0.053,0.042,0.053,0.064,0.054,0.045,0.046,0.045,0.052,0.06,0.058,0.055,0.066,0.073,0.041,0.029,0.053,0.047,0.079,0.064,0.046,0.043,0.061,0.053,0.059,0.053,0.033,0.052,0.047,0.065,0.044,0.057,0.042,0.073,0.055,0.052,0.061,0.038,0.062,0.041,0.061,0.052,0.05,0.032,0.085,0.067,0.054,0.065,0.073,0.062,0.054,0.036,0.062,0.051,0.036,0.05,0.051,0.032,0.054,0.046,0.046,0.056,0.053,0.04,0.06,0.06,0.036,0.047,0.052,0.045,0.059,0.051,0.048,0.076,0.067,0.074,0.045,0.051,0.048,0.049,0.076,0.04,0.064,0.054,0.07,0.064,0.034,0.063,0.062,0.053,0.056,0.084,0.057,0.06,0.064,0.038,0.07,0.044,0.053,0.061,0.067,0.083,0.064,0.051,0.052,0.062,0.072,0.059,0.064,0.067,0.075,0.075,0.066,0.054,0.068,0.059,0.079,0.066,0.067,0.077,0.07,0.077,0.047,0.078,0.068,0.077,0.084,0.067,0.077,0.073,0.065,0.062,0.073,0.071,0.071,0.062,0.086,0.069,0.068,0.074,0.078,0.082,0.088,0.074,0.084,0.067,0.072,0.094,0.094,0.069,0.081,0.072,0.076,0.087,0.083,0.096,0.069,0.097,0.094,0.103,0.084,0.097,0.078,0.06,0.077,0.101,0.091,0.103,0.11,0.076,0.093,0.075,0.077,0.099,0.098,0.104,0.104,0.084,0.124,0.097,0.108,0.108,0.135,0.112,0.123,0.085,0.106,0.092,0.094,0.119,0.105,0.102,0.094,0.115,0.129,0.131,0.11,0.13,0.106,0.139,0.153,0.114,0.128,0.131,0.13,0.121,0.136,0.115,0.129,0.155,0.125,0.149,0.141,0.132,0.123,0.136,0.131,0.145,0.155,0.136,0.156,0.132,0.146,0.155,0.173,0.152,0.151,0.167,0.157,0.179,0.163,0.167,0.181,0.2,0.167,0.176,0.173,0.177,0.189,0.191,0.198,0.19,0.167,0.198,0.187,0.2,0.161,0.184,0.198,0.199,0.188,0.185,0.212,0.177,0.193,0.203,0.199,0.185,0.185,0.185,0.185,0.184,0.163,0.194,0.189,0.203,0.17,0.182,0.194,0.189,0.171,0.179,0.194,0.165,0.183,0.169,0.211,0.179,0.203,0.192,0.186,0.208,0.206,0.192,0.209,0.192,0.2,0.189,0.181,0.216,0.174,0.177,0.192,0.163,0.177,0.176,0.175,0.165,0.177,0.169,0.182,0.179,0.203,0.179,0.177,0.211,0.203,0.181,0.203,0.173,0.198,0.195,0.18,0.179,0.176,0.163,0.179,0.187,0.206,0.214,0.19],"cap":[0.901,0.848,0.906,0.892,0.898,0.878,0.876,0.878,0.869,0.854,0.848,0.841,0.846,0.845,0.844,0.847,0.87,0.874,0.865,0.855,0.869,0.872,0.89,0.903,0.887,0.88,0.87,0.842,0.821,0.83,0.878,0.896,0.903,0.853,0.845,0.89,0.896,0.876,0.884,0.859,0.858,0.876,0.874,0.881,0.865,0.879,0.877,0.889,0.847,0.852,0.856,0.845,0.882,0.875,0.895,0.879,0.863,0.862,0.873,0.833,0.825,0.844,0.831,0.813,0.819,0.828,0.849,0.841,0.834,0.872,0.893,0.892,0.911,0.89,0.909,0.906,0.905,0.895,0.898,0.893,0.881,0.886,0.897,0.893,0.88,0.879,0.889,0.877,0.838,0.825,0.804,0.841,0.843,0.847,0.841,0.82,0.857,0.845,0.846,0.813,0.799,0.819,0.825,0.805,0.838,0.835,0.796,0.804,0.788,0.772,0.799,0.798,0.821,0.844,0.826,0.814,0.791,0.788,0.789,0.8,0.796,0.79,0.785,0.778,0.776,0.749,0.736,0.754,0.76,0.768,0.77,0.765,0.777,0.763,0.742,0.743,0.728,0.737,0.72,0.725,0.721,0.704,0.715,0.701,0.713,0.726,0.755,0.742,0.741,0.735,0.74,0.714,0.707,0.716,0.721,0.727,0.705,0.68,0.689,0.673,0.69,0.701,0.68,0.66,0.692,0.69,0.708,0.712,0.695,0.697,0.67,0.69,0.665,0.652,0.639,0.647,0.631,0.649,0.686,0.691,0.667,0.657,0.626,0.595,0.639,0.63,0.648,0.657,0.639,0.624,0.603,0.594,0.625,0.582,0.587,0.581,0.58,0.542,0.557,0.539,0.59,0.583,0.594,0.603,0.581,0.587,0.591,0.599,0.58,0.542,0.526,0.543,0.532,0.554,0.532,0.486,0.508,0.504,0.506,0.501,0.512,0.507,0.512,0.51,0.488,0.5,0.487,0.481,0.489,0.495,0.493,0.497,0.493,0.475,0.479,0.469,0.478,0.475,0.466,0.453,0.455,0.457,0.445,0.443,0.433,0.435,0.434,0.419,0.403,0.413,0.415,0.415,0.413,0.407,0.403,0.396,0.395,0.403,0.395,0.396,0.39,0.408,0.406,0.399,0.392,0.394,0.396,0.385,0.395,0.395,0.387,0.386,0.394,0.396,0.397,0.399,0.401,0.412,0.404,0.4,0.39,0.404,0.404,0.399,0.398,0.409,0.41,0.402,0.413,0.41,0.416,0.399,0.402,0.392,0.393,0.398,0.386,0.381,0.39,0.376,0.386,0.384,0.405,0.416,0.41,0.416,0.43,0.415,0.423,0.425,0.432,0.422,0.431,0.424,0.431,0.42,0.413,0.388,0.416,0.431,0.401,0.41,0.428,0.405,0.435,0.404,0.395,0.407,0.408,0.425,0.434,0.423,0.406,0.381,0.369,0.386],"sd":[0.1386,0.0908,0.071,0.0634,0.0585,0.0558,0.0553,0.0532,0.0518,0.0507,0.0498,0.0492,0.0485,0.0482,0.0487,0.0483,0.0481,0.0482,0.0484,0.0483,0.0482,0.0483,0.0484,0.0486,0.0489,0.049,0.049,0.0488,0.0483,0.0486,0.0484,0.0485,0.0488,0.0491,0.0487,0.0483,0.0486,0.0488,0.0488,0.0489,0.0486,0.0493,0.0492,0.049,0.049,0.0488,0.0488,0.0488,0.0494,0.0488,0.0485,0.0483,0.048,0.0483,0.0484,0.0487,0.0488,0.0486,0.0498,0.0494,0.0486,0.048,0.0478,0.0475,0.047,0.0468,0.0472,0.0474,0.0475,0.0473,0.0477,0.0482,0.0485,0.049,0.0491,0.0493,0.0495,0.0496,0.0495,0.0495,0.0495,0.0501,0.0498,0.0497,0.0504,0.05,0.0496,0.0495,0.0493,0.0486,0.0479,0.0471,0.0472,0.0473,0.0478,0.0476,0.0472,0.0475,0.0475,0.0484,0.0477,0.0484,0.0478,0.0484,0.0475,0.0474,0.0488,0.0476,0.0483,0.0472,0.0472,0.0466,0.0462,0.0463,0.0467,0.0467,0.0465,0.046,0.0466,0.046,0.0459,0.0457,0.0455,0.0453,0.045,0.0448,0.0442,0.0435,0.0445,0.0442,0.0442,0.0442,0.0441,0.0443,0.0441,0.0436,0.0438,0.0454,0.0443,0.0433,0.0427,0.0423,0.0417,0.0435,0.0423,0.0419,0.042,0.0425,0.0426,0.0427,0.0426,0.0426,0.0435,0.0425,0.0421,0.0419,0.042,0.0415,0.0406,0.0404,0.0399,0.04,0.0403,0.0411,0.0399,0.04,0.0401,0.0405,0.0408,0.0406,0.0406,0.0399,0.04,0.0394,0.0387,0.038,0.0379,0.0373,0.0376,0.0386,0.0393,0.0398,0.0391,0.0378,0.0361,0.0367,0.0367,0.0372,0.0377,0.0375,0.0385,0.0367,0.0356,0.0361,0.0349,0.0346,0.0343,0.0341,0.0326,0.0326,0.032,0.0334,0.0338,0.0343,0.0348,0.0344,0.0343,0.0345,0.0348,0.0343,0.0327,0.0315,0.0337,0.032,0.0344,0.0326,0.0323,0.031,0.032,0.0334,0.0329,0.033,0.0343,0.036,0.0356,0.0344,0.036,0.0342,0.0316,0.0341,0.0358,0.0353,0.0379,0.0367,0.0361,0.0367,0.0362,0.0363,0.0362,0.0372,0.0357,0.035,0.0344,0.0342,0.0358,0.0358,0.0358,0.0325,0.0323,0.0307,0.0306,0.033,0.0328,0.0334,0.0342,0.0326,0.0293,0.0323,0.0319,0.0338,0.0321,0.0316,0.0319,0.0336,0.033,0.0326,0.0321,0.0324,0.0325,0.0328,0.0319,0.0318,0.0309,0.0332,0.0344,0.0341,0.0326,0.0327,0.0333,0.0331,0.032,0.0307,0.032,0.0332,0.033,0.0316,0.0321,0.0326,0.0317,0.0328,0.0335,0.034,0.0328,0.0329,0.0336,0.0302,0.0303,0.03,0.0242,0.0242,0.0238,0.0241,0.0229,0.0229,0.0244,0.0229,0.0231,0.0246,0.0227,0.0234,0.024,0.0257,0.0238,0.0254,0.0245,0.0254,0.0256,0.0253,0.0228,0.0236,0.0255,0.0226,0.0228,0.0242,0.0234,0.0257,0.0248,0.0245,0.0249,0.0225,0.0233,0.0255,0.0257,0.025,0.024,0.0235]};
-(function(){
- var el=document.getElementById('hf');if(!el)return;
- var played=false,lastW=0;
-
- function build(W,H){
-  var narrow=W<760,
-      L=narrow?44:76, R=narrow?16:58, T=narrow?28:36,
-      BL=narrow?42:34, GAP=narrow?58:48,
-      avail=H-T-GAP-BL, LH=avail*0.5, B2=T+LH+GAP, LH2=avail*0.5,
-      fA=narrow?10:11, fT=narrow?9:10.5, fN=narrow?10:12, i;
-  var N=HD.n,pw=W-L-R;
-  var X=function(k){return L+k/(N-1)*pw;};
-  var mn=Math.min.apply(null,HD.meas),mx=Math.max.apply(null,HD.meas);
-  mn=Math.min(mn,HD.limit);mx=Math.max(mx,HD.limit);
-  var pd=(mx-mn)*0.16;mn-=pd;mx+=pd;
-  var Y1=function(v){return T+(1-(v-mn)/(mx-mn))*LH;};
-  var Y2=function(v){return B2+(1-Math.min(Math.max(v,0),1.15)/1.15)*LH2;};
-  var xa=X(HD.alert),xc=X(HD.cross),s=[];
-  function line(x1,y1,x2,y2,c,w,da,op){
-   s.push('<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+
-    y2.toFixed(1)+'" stroke="'+c+'" stroke-width="'+w+'"'+(da?' stroke-dasharray="'+da+'"':'')+
-    (op?' opacity="'+op+'"':'')+'/>');}
-  function txt(x,y,t,c,sz,an,ls){
-   s.push('<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" fill="'+c+'" font-size="'+sz+
-    '" text-anchor="'+(an||'start')+'" font-family="JetBrains Mono, ui-monospace, monospace" letter-spacing="'+
-    (ls||0)+'">'+t+'</text>');}
-
-  s.push('<rect class="fx" x="'+xa.toFixed(1)+'" y="'+T+'" width="'+(xc-xa).toFixed(1)+
-         '" height="'+(B2+LH2-T)+'" fill="#2A7F55" opacity="0.075"/>');
-
-  [mn+pd,HD.limit,mx-pd].forEach(function(v){
-   line(L,Y1(v),W-R,Y1(v),'#E2E0D8',1);
-   txt(L-9,Y1(v)+3.5,v.toFixed(2),'#8E9196',fA,'end',.4);});
-  line(L,Y1(HD.limit),W-R,Y1(HD.limit),'#A54A1C',1.2,'5 4',.85);
-  txt(L,T-12,narrow?'AMMONIA, MEASURED · MG/L':'AMMONIA, MEASURED  ·  MG/L','#8E9196',fT,'start',1.7);
-
-  [{v:1,l:'100%'},{v:0.5,l:'50%'},{v:0,l:'0'}].forEach(function(t){
-   line(L,Y2(t.v),W-R,Y2(t.v),'#E2E0D8',1);
-   txt(L-9,Y2(t.v)+3.5,t.l,'#8E9196',fA,'end',.4);});
-  line(L,Y2(HD.thr),W-R,Y2(HD.thr),'#2A7F55',1.2,'5 4',.6);
-  txt(L,B2-12,narrow?'BIOFILTER CAPACITY, ESTIMATED':
-      'BIOFILTER CAPACITY, ESTIMATED  ·  NO SENSOR REPORTS THIS','#8E9196',fT,'start',1.7);
-
-  var bd='';
-  for(i=0;i<N;i++)bd+=(i?'L':'M')+X(i).toFixed(1)+' '+Y2(HD.cap[i]+1.96*HD.sd[i]).toFixed(1);
-  for(i=N-1;i>=0;i--)bd+='L'+X(i).toFixed(1)+' '+Y2(Math.max(HD.cap[i]-1.96*HD.sd[i],0)).toFixed(1);
-  s.push('<path class="fx" d="'+bd+'Z" fill="#2A7F55" fill-opacity="0.17"/>');
-
-  var p1='';for(i=0;i<N;i++)p1+=(i?'L':'M')+X(i).toFixed(1)+' '+Y1(HD.meas[i]).toFixed(1);
-  var p2='';for(i=0;i<N;i++)p2+=(i?'L':'M')+X(i).toFixed(1)+' '+Y2(HD.cap[i]).toFixed(1);
-  s.push('<path id="tr1" d="'+p1+'" fill="none" stroke="#35619C" stroke-width="'+(narrow?1.3:1.8)+
-         '" stroke-linejoin="round"/>');
-  s.push('<path id="tr2" d="'+p2+'" fill="none" stroke="#2A7F55" stroke-width="'+(narrow?1.7:2.2)+
-         '" stroke-linejoin="round"/>');
-
-  line(xa,T-4,xa,B2+LH2,'#2A7F55',1.4,0,1);
-  line(xc,T-4,xc,B2+LH2,'#A54A1C',1.4,0,1);
-  s.push('<circle class="fx" cx="'+xa.toFixed(1)+'" cy="'+Y2(HD.cap[HD.alert]).toFixed(1)+
-         '" r="'+(narrow?3.6:4.5)+'" fill="#2A7F55" stroke="#F4F3EF" stroke-width="2"/>');
-  s.push('<circle class="fx" cx="'+xc.toFixed(1)+'" cy="'+Y1(HD.meas[HD.cross]).toFixed(1)+
-         '" r="'+(narrow?3.6:4.5)+'" fill="#A54A1C" stroke="#F4F3EF" stroke-width="2"/>');
-
-  var midy=T+LH+GAP/2+(narrow?-2:4);
-  line(xa+6,midy,xc-6,midy,'#2A7F55',1,'3 3',.55);
-  txt((xa+xc)/2,midy-9,'89 H OF WARNING','#14432F',fN,'middle',narrow?1.4:2.2);
-  txt(xa-8,B2+LH2+(narrow?22:26),narrow?'ENGINE FLAGS':'ENGINE FLAGS THE DROP','#14432F',fT,'end',1.6);
-  txt(xc+8,B2+LH2+(narrow?22:26),narrow?'ALARM':'ALARM FINALLY FIRES','#A54A1C',fT,'start',1.6);
-  txt(L,B2+LH2+(narrow?38:26),'0 H','#ABADB1',fT,'start',1.6);
-  txt(W-R,B2+LH2+(narrow?38:26),(N-1)+' H','#ABADB1',fT,'end',1.6);
-  return s.join('');
- }
-
- /* Draw at the element's real pixel size so nothing is ever scaled. */
- function paint(){
-  var W=Math.round(el.clientWidth||el.parentNode.clientWidth||1200);if(!W)return;
-  var H=W<760?540:(W<1100?420:380);
-  if(Math.abs(W-lastW)<24&&played)return;
-  lastW=W;
-  el.setAttribute('viewBox','0 0 '+W+' '+H);el.style.height=H+'px';
-  el.innerHTML=build(W,H);
-  if(played)return;
-  var t1=el.querySelector('#tr1'),t2=el.querySelector('#tr2'),fx=el.querySelectorAll('.fx');
-  if(RM||!t1.getTotalLength){played=true;return;}
-  var l1=t1.getTotalLength(),l2=t2.getTotalLength();
-  t1.style.strokeDasharray=l1;t1.style.strokeDashoffset=l1;
-  t2.style.strokeDasharray=l2;t2.style.strokeDashoffset=l2;
-  fx.forEach(function(e){e.style.opacity=0;});
-  function play(){
-   if(played)return;played=true;
-   t1.style.transition='stroke-dashoffset 1.9s cubic-bezier(.32,.72,.3,1)';
-   t2.style.transition='stroke-dashoffset 2.3s cubic-bezier(.32,.72,.3,1) .28s';
-   t1.style.strokeDashoffset=0;t2.style.strokeDashoffset=0;
-   setTimeout(function(){fx.forEach(function(e){
-    e.style.transition='opacity .7s ease';e.style.opacity='';});},1450);
-  }
-  if(IO){var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){play();o.disconnect();}},
-   {threshold:.12});o.observe(el);}else play();
- }
- paint();
- var tm;addEventListener('resize',function(){clearTimeout(tm);tm=setTimeout(paint,180);},{passive:true});
-})();
-
 /* ---------------- method pipeline diagram ---------------- */
 (function(){
  var el=document.getElementById('pipe');if(!el)return;
@@ -515,7 +368,7 @@ var HD={"n":336,"dt":1,"limit":0.15,"base":0.869,"alert":126,"cross":215,"thr":0
 })();
 
 /* ---------------- product index ---------------- */
-var P=[{"id": "OE/01", "name": "CURRENT", "market": "Aquaculture", "img": "raceways", "status": "Backtested", "done": true, "href": "current.html", "body": "Biofilter capacity, the oxygen budget, and the position of the nitrogen cycle, on a recirculating farm where the whole loop turns over several times an hour.", "ev": "6.5 hours of usable lead reproduced on held-out commercial operating history."}, {"id": "OE/02", "name": "CANOPY", "market": "Controlled agriculture", "img": "cea", "status": "Validation open", "done": false, "href": "canopy.html", "body": "The physiological state of a crop, inferred from the environment it actually experienced rather than from the set points it was supposed to receive.", "ev": "Retrospective test in design with operators. Result published on completion of the run."}, {"id": "OE/03", "name": "AQUIFER", "market": "Hydroponics and water", "img": "growhouse", "status": "Validation open", "done": false, "href": "aquifer.html", "body": "The chemistry and microbial activity of a recirculating nutrient loop, and the root zone state that every block on that loop shares.", "ev": "Runs the estimator validated in OE/01 and OE/04 against nutrient-loop chemistry. Benchmark scoping with operators."}, {"id": "OE/04", "name": "RECLAIM", "market": "Bioremediation", "img": "clarifiers", "status": "Validated", "done": true, "href": "reclaim.html", "body": "Nitrifier activity and the oxygen demand running ahead of the blower response, in the reactors that carry the treatment load.", "ev": "IWA BSM1 benchmark. Dissolved oxygen prediction error cut by 92 percent. ADM1 one-step error reduced from 163.7 to 0.77."}, {"id": "OE/05", "name": "CULTURE", "market": "Bioprocessing", "img": "bioprocess", "status": "Validated", "done": true, "href": "culture.html", "body": "Metabolic flux and the trajectory toward final yield, reconstructed between sparse and expensive assays.", "ev": "E. coli dynamic flux balance. One-step RMSE reduced from 0.062 to 0.011, a reduction of 82 percent."}, {"id": "OE/06", "name": "ORBIS", "market": "Space and life support", "img": "life-support", "status": "Validated", "done": true, "href": "orbis.html", "body": "Partial pressures and the hours of margin to a life-critical bound, in a loop with no resupply and no exit.", "ev": "SIMOC, 60 runs across 7 configurations including Biosphere 2 mission parameters. 98 percent of breaches identified before they occurred."}, {"id": "OE/07", "name": "FIELD", "market": "Open environments", "img": "delta", "status": "Roadmap", "done": false, "href": "field.html", "body": "System state where the boundary is not sealed and the forcing is weather, which is the same inverse problem with a larger uncertainty budget.", "ev": "Listed because the method extends here. This domain sits on the roadmap rather than in the validation record."}, {"id": "Shared", "name": "NEXUS", "market": "Platform layer", "img": "vision", "status": "Core", "done": false, "href": "nexus.html", "body": "The shared engine, data model and simulation layer beneath every product. The customer buys CURRENT or CANOPY. NEXUS is what compounds underneath.", "ev": "Steps two and three of the method are identical across every product above. Only the process model changes. That is the whole argument for one company rather than seven."}];
+var P=[{"id": "OE/01", "name": "CURRENT", "market": "Aquaculture and water systems", "img": "ponds2", "href": "current.html", "body": "Biofilter capacity, the oxygen budget and the position of the nitrogen cycle, on a recirculating farm where the whole loop turns over several times an hour.", "ev": "6.5 hours of usable lead reproduced on held-out commercial operating history."}, {"id": "OE/02", "name": "CANOPY", "market": "Controlled agriculture and hydroponics", "img": "glasshouse", "href": "canopy.html", "body": "The physiological state of a crop and the chemistry of the nutrient loop feeding it, inferred from the environment the plants actually experienced rather than the set points they were supposed to receive.", "ev": "Retrospective test in design with operators. Result published on completion of the run."}, {"id": "OE/03", "name": "CULTURE", "market": "Bioprocessing and bioremediation", "img": "reactors", "href": "culture.html", "body": "Metabolic flux and the trajectory toward final yield in a fermenter, and nitrifier activity running ahead of the blower response in a treatment reactor. Same estimator, two process models.", "ev": "E. coli dynamic flux balance, one-step RMSE 0.062 to 0.011. IWA BSM1 dissolved oxygen error cut 92 percent. ADM1 one-step error 163.7 to 0.77."}, {"id": "OE/04", "name": "ORBIS", "market": "Space and closed-loop life support", "img": "cupola", "href": "orbis.html", "body": "Partial pressures and the hours of margin to a life-critical bound, in a loop with no resupply and no exit.", "ev": "SIMOC, 60 runs across 7 configurations including Biosphere 2 mission parameters. 98 percent of breaches identified before they occurred."}];
 (function(){
  var rows=document.getElementById('rows'),ph=document.getElementById('ph');if(!rows)return;
  P.forEach(function(p,i){
@@ -524,7 +377,7 @@ var P=[{"id": "OE/01", "name": "CURRENT", "market": "Aquaculture", "img": "racew
   b.setAttribute('aria-selected',i===0?'true':'false');
   b.innerHTML='<span class="id">'+p.id+'</span>'+
    '<span class="nm">'+p.name+'<span>'+p.market+'</span></span>'+
-   '<span class="pill'+(p.done?' ok':'')+'">'+p.status+'</span>';
+   '<span class="ch" aria-hidden="true">&rarr;</span>';
   b.addEventListener('mouseenter',function(){sel(i);});
   b.addEventListener('focus',function(){sel(i);});
   b.addEventListener('click',function(){location.href=p.href;});
@@ -552,7 +405,7 @@ var P=[{"id": "OE/01", "name": "CURRENT", "market": "Aquaculture", "img": "racew
 })();
 
 /* ---------------- validation record ---------------- */
-var R=[["Complete", "OE/01", "Held-out backtest on real land-based commercial operating data", "6.5 h of usable lead reproduced ahead of the event."], ["In progress", "OE/01", "Biofilter-health estimates checked against laboratory assay at a third-party research facility", "Independent measurement validation. In progress."], ["In design", "OE/02", "Retrospective test protocol, controlled environment agriculture", "Protocol in design with operators. Result published on completion of the run."], ["In design", "OE/03", "Coupled-loop test protocol, hydroponic nutrient loops and aquaponics", "Scoping with operators. Runs the coupled form of the OE/01 and OE/02 estimators."], ["Complete", "OE/04", "IWA BSM1, standard activated sludge benchmark, dissolved oxygen channel", "Prediction error reduced 92 percent. Excursions identified more than 12 h ahead."], ["Complete", "OE/04", "IWA ADM1, reference anaerobic digestion model, one-step prediction", "Error reduced from 163.7 to 0.77."], ["Complete", "OE/05", "Dynamic flux balance, E. coli, one-step RMSE across complete runs", "RMSE 0.062 to 0.011, a reduction of 82 percent."], ["Complete", "OE/06", "SIMOC habitat simulator, 60 runs, 7 configurations, Biosphere 2 and Mars models", "98 percent of breaches identified pre-event. Median lead 11 h, max 168. False alarm 11 percent."]];
+var R=[["Complete", "OE/01", "Held-out backtest on real land-based commercial operating data", "6.5 h of usable lead reproduced ahead of the event."], ["In progress", "OE/01", "Biofilter-health estimates checked against laboratory assay at a third-party research facility", "Independent measurement validation. In progress."], ["In design", "OE/02", "Retrospective test protocol, controlled environment agriculture", "Protocol in design with operators. Result published on completion of the run."], ["In design", "OE/02", "Coupled-loop test protocol, hydroponic nutrient loops and aquaponics", "Scoping with operators. Runs the coupled form of the OE/01 and OE/02 estimators."], ["Complete", "OE/03", "IWA BSM1, standard activated sludge benchmark, dissolved oxygen channel", "Prediction error reduced 92 percent. Excursions identified more than 12 h ahead."], ["Complete", "OE/03", "IWA ADM1, reference anaerobic digestion model, one-step prediction", "Error reduced from 163.7 to 0.77."], ["Complete", "OE/03", "Dynamic flux balance, E. coli, one-step RMSE across complete runs", "RMSE 0.062 to 0.011, a reduction of 82 percent."], ["Complete", "OE/04", "SIMOC habitat simulator, 60 runs, 7 configurations, Biosphere 2 and Mars models", "98 percent of breaches identified pre-event. Median lead 11 h, max 168. False alarm 11 percent."]];
 (function(){
  var tb=document.getElementById('rec');if(!tb)return;
  tb.innerHTML=R.map(function(r){

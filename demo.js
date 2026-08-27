@@ -72,8 +72,8 @@ function runAsync(d,rows,onTick,done){
   if(k<rows.length){setTimeout(slice,0);return;}
   /* lead is measured against the MEASURED channel crossing its limit, not the
      filter's own estimate, so it is a real warning interval */
-  var sc=null,q;
-  for(q=0;q<d.chan.length;q++)if(d.chan[q].s===d.safety.idx)sc=d.chan[q];
+  var all=d.allChan||d.chan, sc=null,q;
+  for(q=0;q<all.length;q++)if(all[q].s===d.safety.idx)sc=all[q];
   if(sc){for(q=0;q<rows.length;q++){var mv=parseFloat(rows[q][sc.col]);
    if(sc.xf)mv=sc.xf(mv);
    if(isFinite(mv)&&(d.safety.dir==='>'?mv>d.safety.limit:mv<d.safety.limit)){cross=q;break;}}}
@@ -89,11 +89,12 @@ function econ(d,res,rows){
  var e=d.econ, lead=0;
  if(res.alert!==null&&res.cross!==null&&res.cross>res.alert) lead=(res.cross-res.alert)*d.dt;
  var stock=e.stockCol?(parseFloat(rows[rows.length-1][e.stockCol])||e.fixedStock||0):(e.fixedStock||0);
- var value=stock*e.price;
- var saved=value*e.lossFrac;
- var ins=e.insDeduct+value*e.lossFrac*(e.insLoadPct/100);
- var lab=e.labourHr*88;
- return {lead:lead,stock:stock,value:value,saved:saved,ins:ins,lab:lab,total:saved+ins+lab};
+ var value=stock*e.price, none=(lead<=0);
+ var saved=none?0:value*e.lossFrac;
+ var ins=none?0:e.insDeduct+value*e.lossFrac*(e.insLoadPct/100);
+ var lab=none?0:e.labourHr*88;
+ return {lead:lead,none:none,stock:stock,value:value,saved:saved,ins:ins,lab:lab,
+         total:saved+ins+lab};
 }
 
 /* ---- charts. One axis each, never a shared scale. ---- */
@@ -112,7 +113,9 @@ function axis(ml,mr,W,ticks){
 }
 function plotGauge(res,d,rows){
  var W=360,H=116,ml=42,mr=6,mt=10,mb=16,pw=W-ml-mr,ph=H-mt-mb,N=res.n,sc=null,i;
- for(i=0;i<d.chan.length;i++)if(d.chan[i].s===d.safety.idx)sc=d.chan[i];
+ var all=d.allChan||d.chan;
+ for(i=0;i<all.length;i++)if(all[i].s===d.safety.idx)sc=all[i];
+ if(!sc)return '';
  var v=[];
  for(i=0;i<N;i++){var q=parseFloat(rows[i][sc.col]);if(sc.xf)q=sc.xf(q);v.push(isFinite(q)?q:null);}
  var lim=d.safety.limit,
@@ -157,7 +160,9 @@ function dataView(res,d,rows){
  var st=Math.max(1,Math.floor(res.n/26)),sc=null,i,
   h='<table><thead><tr><th>'+(d.unit==='d'?'day':'hr')+'</th><th>gauge</th>'+
     '<th>capacity</th><th>P(breach)</th></tr></thead><tbody>';
- for(i=0;i<d.chan.length;i++)if(d.chan[i].s===d.safety.idx)sc=d.chan[i];
+ var all=d.allChan||d.chan;
+ for(i=0;i<all.length;i++)if(all[i].s===d.safety.idx)sc=all[i];
+ if(!sc)return '';
  for(i=0;i<res.n;i+=st){var q=parseFloat(rows[i][sc.col]);if(sc.xf)q=sc.xf(q);
   h+='<tr><td>'+nice(i*d.dt)+'</td><td>'+(q>=1000?Math.round(q):q.toFixed(2))+
    '</td><td>'+res.hid[i].toFixed(3)+'</td><td>'+res.prob[i].toFixed(2)+'</td></tr>';}
@@ -202,7 +207,29 @@ function render(card,d,rows){
    setStep(3,'ok'); val(3).textContent=fmtN(W.traj)+' futures';
    setStep(4,'ok'); val(4).textContent=fmtUSD(ec.total);
 
+   var gaugeOff=!!d.gaugeOff,
+       meanNIS=res.nis.reduce(function(a,x){return a+x;},0)/res.n,
+       /* 9 is the engine's own robust gate, so the page flags exactly what the filter does */
+       thin=meanNIS>9||res.alert===null,
+       live=d.chan.length, tot=(window.DOMAINS[d.key]||d).chan.length;
+
    out.innerHTML=
+    /* ---- the engine's own verdict on whether to believe it ---- */
+    (thin?'<div class="blk warnbk"><p class="slb">Read this first</p><p class="nar">'+
+      (res.alert===null?'The engine did not raise a flag on this log. ':'')+
+      'Mean NIS came out at <b>'+meanNIS.toFixed(1)+'</b>. One means the model explains what it was '+
+      'given, and the filter itself starts downweighting readings above nine. '+
+      (live<tot?'With '+live+' of '+tot+' instruments there is not enough information here to '+
+        'separate '+d.hiddenName.toLowerCase()+' from everything else moving at once. ':
+        'The model and this log do not agree well enough to trust the number. ')+
+      'That figure is the check that says when not to believe the answer, and it is why we publish '+
+      'it next to every result.</p></div>':'')+
+    /* ---- the alarm probe was switched off, which is the point ---- */
+    (gaugeOff&&res.alert!==null?'<div class="blk offbk"><p class="slb">Note</p><p class="nar">'+
+      'The '+d.safety.label.toLowerCase()+' probe was switched off for this run, so the engine '+
+      'never saw it. It tracked '+d.hiddenName.toLowerCase()+' from the remaining instruments and '+
+      'still called the drop. The trace below is the reading it was not given, drawn afterwards so '+
+      'you can see what it would have shown.</p></div>':'')+
     /* ---- what happened ---- */
     '<div class="blk"><p class="slb">What happened</p>'+
      '<p class="nar">'+d.gaugeLabel+' stayed inside its normal band for the first '+
@@ -212,10 +239,12 @@ function render(card,d,rows){
       d.hiddenName.toLowerCase()+' had fallen <b>'+atAlert+'%</b> below the baseline this log '+
       'set for itself. By the time the gauge crossed, <b>'+atCross+'%</b> was gone.')+'</p>'+
      '<div class="two">'+
-      '<div><div class="big">'+(ec.lead?nice(ec.lead)+'<small>'+u+'</small>':'0')+'</div>'+
-       '<div class="cap">Warning ahead of the gauge</div></div>'+
-      '<div><div class="big grn">'+fmtUSD(ec.total)+'</div>'+
-       '<div class="cap">Modelled value of that warning</div></div>'+
+      '<div><div class="big">'+(ec.none?'&mdash;':nice(ec.lead)+'<small>'+u+'</small>')+'</div>'+
+       '<div class="cap">'+(ec.none?'No usable warning on this run':
+        'Warning ahead of the gauge')+'</div></div>'+
+      '<div><div class="big'+(ec.none?'':' grn')+'">'+(ec.none?'&mdash;':fmtUSD(ec.total))+'</div>'+
+       '<div class="cap">'+(ec.none?'Nothing to value without a warning':
+        'Modelled value of that warning')+'</div></div>'+
      '</div></div>'+
 
     /* ---- the two charts ---- */
@@ -224,7 +253,7 @@ function render(card,d,rows){
        '<i class="sw" style="background:'+MEAS+'"></i>'+d.gaugeLabel+'</span>'+
        '<span class="pu">measured &middot; '+d.gaugeUnits+'</span></div>'+
       svg(360,116,plotGauge(res,d,rows),d.gaugeLabel+' with its safety limit')+
-      '<figcaption>Dashed line is the limit. It is crossed at '+
+      '<figcaption>'+(gaugeOff?'Not given to the engine. ':'')+'Dashed line is the limit. It is crossed at '+
        (xT===null?'no point in this log':xT+' '+u)+'.</figcaption></figure>'+
      '<figure class="plot"><div class="ph"><span class="pt">'+
        '<i class="sw" style="background:'+EST+'"></i>'+d.hiddenName+'</span>'+
@@ -238,10 +267,12 @@ function render(card,d,rows){
      '<table class="val"><tbody>'+
       '<tr><td>On the line</td><td>'+(d.econ.unit==='batch'||d.econ.unit==='contingency'?
         fmtUSD(ec.value):ec.stock.toLocaleString()+' '+d.econ.unit.split(' ')[0])+'</td></tr>'+
-      '<tr><td>Stock or yield kept</td><td>'+fmtUSD(ec.saved)+'</td></tr>'+
+      '<tr><td>Stock or yield kept</td><td>'+(ec.none?'<span class="na">no warning</span>':
+        fmtUSD(ec.saved))+'</td></tr>'+
       '<tr><td>Claim and response</td><td>'+(ec.ins+ec.lab>0?fmtUSD(ec.ins+ec.lab):
         '<span class="na">not modelled</span>')+'</td></tr>'+
-      '<tr class="em"><td>Total, modelled</td><td>'+fmtUSD(ec.total)+'</td></tr>'+
+      '<tr class="em"><td>Total, modelled</td><td>'+(ec.none?'<span class="na">not applicable</span>':
+        fmtUSD(ec.total))+'</td></tr>'+
      '</tbody></table>'+
      '<details><summary>How this is costed</summary><p class="fine">'+
       (d.econ.unit==='batch'||d.econ.unit==='contingency'?'':
@@ -267,8 +298,7 @@ function render(card,d,rows){
        '<tr><td>Forecast evaluations</td><td>'+W.fc.toLocaleString()+'</td></tr>'+
        '<tr><td>Futures simulated</td><td>'+fmtN(W.traj)+'</td></tr>'+
        '<tr><td>Integration steps</td><td>'+fmtN(W.rk4)+'</td></tr>'+
-       '<tr><td>Model fit, mean NIS</td><td>'+
-        (res.nis.reduce(function(a,x){return a+x;},0)/res.n).toFixed(2)+'</td></tr>'+
+       '<tr><td>Model fit, mean NIS</td><td>'+meanNIS.toFixed(2)+'</td></tr>'+
        '<tr><td>Flagged by</td><td>'+(res.why==='capacity'?'capacity':'forecast')+'</td></tr>'+
       '</tbody></table>'+
       '<p class="fine">NIS near 1.0 means the model explains this log. Well above means '+
@@ -279,57 +309,218 @@ function render(card,d,rows){
   });
 }
 
+
+/* =================================================================
+   The configurator.
+
+   Three choices, then the engine takes the screen. Pick a domain,
+   pick the system inside it, tell it which instruments you actually
+   have and what is on the line, and run. Everything a tester changes
+   here is merged over the domain definition before the run starts;
+   the model itself is untouched.
+   ================================================================= */
+var FAM=window.FAMILIES, CHN=window.CHANNELS||{};
+var sel={fam:0, sys:0, chans:null, stock:0, price:0, limit:0};
+
+function chanName(c){return CHN[c.col]||c.col;}
+
+/* Merge the chosen system and the tester's edits over the base domain. */
+function compose(){
+ var f=FAM[sel.fam], sy=f.systems[sel.sys], base=window.DOMAINS[sy.domain];
+ var d=Object.create(base);
+ d.p=Object.assign({},base.p,sy.p||{});
+ d.safety=Object.assign({},base.safety,{limit:sel.limit});
+ d.allChan=base.chan;
+ d.chan=base.chan.filter(function(c,i){return sel.chans[i];});
+ d.gaugeOff=!d.chan.some(function(c){return c.s===base.safety.idx;});
+ d.econ=Object.assign({},base.econ,{stockCol:null,fixedStock:sel.stock,price:sel.price});
+ if(sy.unit)d.econ=Object.assign({},d.econ,{unit:sy.unit});
+ d.title=sy.name; d.sub=sy.sub;
+ return d;
+}
+
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;
+ if(h!==undefined)e.innerHTML=h;return e;}
+
 function build(){
- var rack=document.getElementById('rack');
- ORDER.forEach(function(k,idx){
-  var d=D[k],c=document.createElement('section');
-  c.className='card';c.setAttribute('data-k',k);c.setAttribute('aria-label',d.title);
-  var steps=[['Read the log',''],
-             ['Fit the '+d.model,''],
-             ['Estimate '+d.hiddenName.toLowerCase(),''],
-             ['Simulate futures',''],
-             ['Price the exposure','']];
-  c.innerHTML=
-   '<header class="hd"><div class="ix">'+String(idx+1).padStart(2,'0')+'</div>'+
-    '<h3>'+d.title+'</h3><p>'+d.sub+'</p></header>'+
-   '<div class="dz" tabindex="0" role="button" aria-label="Load a CSV for '+d.title+'">'+
-    '<div class="fn">Drop an operating log</div>'+
-    '<div class="mt"><a href="#" class="samp">or use the sample</a></div></div>'+
+ var root=document.getElementById('cfg');if(!root||!FAM)return;
+
+ /* ---------- step 1, the domain ---------- */
+ var s1=el('div','step on'),
+     s2=el('div','step'),
+     s3=el('div','step');
+
+ s1.innerHTML='<p class="sh"><i>01</i>Choose a domain</p>';
+ var g1=el('div','tiles');
+ FAM.forEach(function(f,i){
+  var b=el('button','tile'+(i===0?' on':''));
+  b.type='button';
+  b.innerHTML='<span class="im"><img src="assets/img/'+f.img+'.webp" alt="" loading="lazy"></span>'+
+   '<span class="tx"><span class="cd">'+f.code+'</span><b>'+f.name+'</b>'+
+   '<span class="bl">'+f.blurb+'</span></span>';
+  b.addEventListener('click',function(){
+   if(sel.fam===i)return;
+   sel.fam=i; sel.sys=0;
+   g1.querySelectorAll('.tile').forEach(function(x,j){x.classList.toggle('on',i===j);});
+   drawSystems(); drawConfig();
+  });
+  g1.appendChild(b);
+ });
+ s1.appendChild(g1);
+
+ /* ---------- step 2, the system ---------- */
+ s2.innerHTML='<p class="sh"><i>02</i>Choose the system</p>';
+ var g2=el('div','sys'); s2.appendChild(g2);
+
+ function drawSystems(){
+  g2.innerHTML='';
+  FAM[sel.fam].systems.forEach(function(sy,i){
+   var b=el('button','sy'+(i===sel.sys?' on':''));
+   b.type='button';
+   b.innerHTML='<b>'+sy.name+'</b><span class="sb">'+sy.sub+'</span>'+
+               '<span class="nt">'+sy.note+'</span>';
+   b.addEventListener('click',function(){
+    if(sel.sys===i)return;
+    sel.sys=i;
+    g2.querySelectorAll('.sy').forEach(function(x,j){x.classList.toggle('on',i===j);});
+    drawConfig();
+   });
+   g2.appendChild(b);
+  });
+ }
+
+ /* ---------- step 3, what you have ---------- */
+ s3.innerHTML='<p class="sh"><i>03</i>Tell it what you have</p>';
+ var g3=el('div','cfgrid'); s3.appendChild(g3);
+ var runWrap=el('div','runrow'); s3.appendChild(runWrap);
+
+ function drawConfig(){
+  var sy=FAM[sel.fam].systems[sel.sys], base=window.DOMAINS[sy.domain];
+  sel.chans=base.chan.map(function(){return true;});
+  sel.stock=sy.stock; sel.price=sy.price; sel.limit=sy.limit;
+  var unit=sy.unit||base.econ.unit;
+
+  g3.innerHTML='';
+
+  /* instruments */
+  var inst=el('div','fld');
+  inst.innerHTML='<p class="fl">Instruments on site</p>'+
+   '<p class="fh">Turn off anything this facility does not have. The engine works with '+
+   'whatever is left, and the estimate simply widens.</p>';
+  var list=el('div','chks');
+  base.chan.forEach(function(c,i){
+   var id='ch'+i,
+       row=el('label','chk on');
+   row.innerHTML='<input type="checkbox" id="'+id+'" checked><span class="bx"></span>'+
+    '<span class="cn">'+chanName(c)+'</span><span class="cu">'+c.col+'</span>';
+   var box=row.querySelector('input');
+   box.addEventListener('change',function(){
+    var live=sel.chans.filter(Boolean).length;
+    if(!box.checked&&live<=1){box.checked=true;return;}   /* never zero instruments */
+    sel.chans[i]=box.checked;
+    row.classList.toggle('on',box.checked);
+    updateSummary();
+   });
+   list.appendChild(row);
+  });
+  inst.appendChild(list);
+  g3.appendChild(inst);
+
+  /* numbers */
+  function num(label,help,val,step,fmt,onset){
+   var f=el('div','fld');
+   f.innerHTML='<p class="fl">'+label+'</p><p class="fh">'+help+'</p>';
+   var w=el('div','inp');
+   var inp=document.createElement('input');
+   inp.type='number'; inp.value=val; inp.step=step; inp.min=0;
+   w.appendChild(inp);
+   if(fmt)w.appendChild(el('span','sfx',fmt));
+   inp.addEventListener('input',function(){
+    var v=parseFloat(inp.value);
+    if(isFinite(v)&&v>=0){onset(v);updateSummary();}
+   });
+   f.appendChild(w); return f;
+  }
+
+  g3.appendChild(num('What is on the line',
+   'Stock, plants or batches in the system when the event happens.',
+   sy.stock, 1, unit.split(' ')[0], function(v){sel.stock=v;}));
+
+  g3.appendChild(num('Unit value',
+   base.econ.priceLabel+'.',
+   sy.price, sy.price>1000?1000:0.05, 'USD', function(v){sel.price=v;}));
+
+  g3.appendChild(num('Alarm threshold',
+   base.safety.label+', the line your existing alarm trips on.',
+   sy.limit, sy.limit>100?100:0.01, base.safety.units, function(v){sel.limit=v;}));
+
+  runWrap.innerHTML='<p class="sum" id="sum"></p>';
+  var btn=el('button','btn lg run');
+  btn.type='button';
+  btn.innerHTML='Run the engine <span class="ar">&rarr;</span>';
+  btn.addEventListener('click',function(){launch();});
+  runWrap.appendChild(btn);
+  updateSummary();
+ }
+
+ function updateSummary(){
+  var s=document.getElementById('sum');if(!s)return;
+  var sy=FAM[sel.fam].systems[sel.sys], base=window.DOMAINS[sy.domain],
+      on=sel.chans.filter(Boolean).length, tot=base.chan.length;
+  s.textContent=sy.name+' · '+on+' of '+tot+' instruments · '+
+   sel.stock.toLocaleString()+' '+(sy.unit||base.econ.unit)+' at $'+
+   sel.price.toLocaleString()+' · alarm at '+sel.limit+' '+base.safety.units;
+ }
+
+ root.appendChild(s1); root.appendChild(s2); root.appendChild(s3);
+ drawSystems(); drawConfig();
+}
+
+/* ---------- the full-screen run ---------- */
+function launch(){
+ var d=compose(), sy=FAM[sel.fam].systems[sel.sys],
+     rows=parseCSV(window.SAMPLES[sy.domain]),
+     stage=document.getElementById('stage'),
+     body=document.getElementById('stagebody');
+
+ var steps=[['Read the log',''],['Fit the '+d.model,''],
+            ['Estimate '+d.hiddenName.toLowerCase(),''],
+            ['Simulate futures',''],['Price the exposure','']];
+
+ body.innerHTML=
+  '<header class="shd">'+
+   '<div><p class="lbl">'+FAM[sel.fam].code+' &middot; '+FAM[sel.fam].name+'</p>'+
+   '<h2>'+d.title+'</h2><p class="ss">'+d.sub+' &middot; '+
+   sel.chans.filter(Boolean).length+' of '+window.DOMAINS[sy.domain].chan.length+
+   ' instruments &middot; alarm at '+sel.limit+' '+d.safety.units+'</p></div>'+
+  '</header>'+
+  '<div class="card run" id="runcard">'+
    '<ol class="tick">'+steps.map(function(s){
      return '<li><span class="d"></span><span class="s">'+s[0]+'</span><em></em></li>';}).join('')+
-   '</ol><div class="out"></div>';
+   '</ol><div class="out"></div>'+
+  '</div>';
 
-  var dz=c.querySelector('.dz');
-  function load(text,name){
-   var rows;
-   try{rows=parseCSV(text);}catch(e){dz.querySelector('.fn').textContent='Could not read that file';return;}
-   var miss=d.chan.filter(function(ch){return rows[0][ch.col]===undefined;});
-   if(miss.length){dz.querySelector('.fn').textContent='Missing column '+miss[0].col;
-    dz.querySelector('.mt').textContent='needs '+d.chan.map(function(x){return x.col;}).join(', ');return;}
-   dz.classList.add('done');
-   dz.querySelector('.fn').textContent=name;
-   dz.querySelector('.mt').textContent=rows.length+' rows · '+Object.keys(rows[0]).length+' columns';
-   render(c,d,rows);
-  }
-  ['dragenter','dragover'].forEach(function(e){dz.addEventListener(e,function(ev){
-   ev.preventDefault();dz.classList.add('over');});});
-  ['dragleave','drop'].forEach(function(e){dz.addEventListener(e,function(ev){
-   ev.preventDefault();dz.classList.remove('over');});});
-  dz.addEventListener('drop',function(ev){var fl=ev.dataTransfer.files&&ev.dataTransfer.files[0];
-   if(!fl)return;var r=new FileReader();r.onload=function(){load(r.result,fl.name);};r.readAsText(fl);});
-  function pick(){var inp=document.createElement('input');inp.type='file';inp.accept='.csv,text/csv';
-   inp.onchange=function(){var fl=inp.files[0];if(!fl)return;var r=new FileReader();
-    r.onload=function(){load(r.result,fl.name);};r.readAsText(fl);};inp.click();}
-  dz.addEventListener('click',function(ev){
-   if(dz.classList.contains('done'))return;
-   if(ev.target.classList.contains('samp')){ev.preventDefault();
-    /* samples are embedded, so this works offline and from disk */
-    load(window.SAMPLES[k],d.file);return;}
-   pick();});
-  dz.addEventListener('keydown',function(ev){
-   if((ev.key==='Enter'||ev.key===' ')&&!dz.classList.contains('done')){ev.preventDefault();pick();}});
-  rack.appendChild(c);
- });
+ stage.classList.add('on');
+ document.body.classList.add('locked');
+ stage.querySelector('.sx').focus();
+ render(document.getElementById('runcard'),d,rows);
 }
-if(document.readyState!=='loading')build();else document.addEventListener('DOMContentLoaded',build);
+
+function closeStage(){
+ var stage=document.getElementById('stage');
+ stage.classList.remove('on');
+ document.body.classList.remove('locked');
+ document.getElementById('stagebody').innerHTML='';
+}
+
+function wire(){
+ build();
+ var stage=document.getElementById('stage');
+ if(!stage)return;
+ stage.querySelector('.sx').addEventListener('click',closeStage);
+ stage.addEventListener('click',function(e){if(e.target===stage)closeStage();});
+ document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&stage.classList.contains('on'))closeStage();});
+}
+if(document.readyState!=='loading')wire();else document.addEventListener('DOMContentLoaded',wire);
 })();

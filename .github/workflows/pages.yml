@@ -20,16 +20,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # NOTHING IS GENERATED HERE. build.py and content.py are legacy and would
+      # overwrite the hand-built pages. This job publishes exactly what is
+      # committed. If a page is wrong on the live site, it is wrong in the repo.
       - name: Stage site
         run: |
-          mkdir -p _site
+          mkdir -p _site/paper
           cp -r assets _site/
           cp *.html _site/
+          rm -f _site/index.old.html
           cp CNAME robots.txt sitemap.xml .nojekyll _site/
-          cp engine.js domains.js samples.js demo.js _site/
+          cp engine.js domains.js samples.js presets.js demo.js _site/
           cp -r data _site/
-          if [ -d paper ]; then cp -r paper _site/; fi
-          ls -la _site
+          cp -r paper/assets _site/paper/
+          cp paper/index.html _site/paper/
+
+      # Fail loudly rather than publishing a site with a missing script.
+      - name: Check the demo has everything it needs
+        run: |
+          for f in engine.js domains.js samples.js presets.js demo.js \
+                   assets/oe.css assets/oe.js assets/signature.svg; do
+            test -s "_site/$f" || { echo "MISSING: $f"; exit 1; }
+          done
+          grep -q 'presets.js' _site/demo.html || { echo "demo.html does not load presets.js"; exit 1; }
+          grep -q 'keyframes slides' _site/assets/oe.css || { echo "oe.css is stale"; exit 1; }
+          echo "staged $(find _site -type f | wc -l) files"
 
       - uses: actions/upload-pages-artifact@v3
         with:

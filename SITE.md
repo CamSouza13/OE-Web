@@ -85,7 +85,74 @@ is what makes their deutan separation legal.
 Green carries meaning rather than decoration: it means "the thing we add", which
 is the estimate, the warning, and the call to action. Nothing else is green.
 
+LIVE DEMO (demo.html + presets.js + demo.js)
+Three steps then a full-screen run. Pick a domain, pick the system inside it,
+say what instruments and stock you have, hit run. The "bring your own CSV"
+dropzone is gone; nothing on the page reads a file any more.
+
+presets.js holds four families of three systems. Every system runs the SAME
+process model from domains.js against the SAME synthetic log, with plant
+parameters, economics and the alarm threshold changed. That is the constraint
+to respect when adding one:
+
+  - The log was generated from the base parameters. Move `p` too far and the
+    model stops fitting its own data, mean NIS explodes and the page correctly
+    flags low confidence. Keep deltas modest and check NIS after.
+  - `limit` must sit above the first 30 percent of the log's safety channel and
+    below its maximum, or it either trips at row zero (lead 0) or never trips.
+    Measured windows: aquaculture TAN 0.085 to 0.216, hydroponics EC 2.12 to
+    2.68, bioreactor glucose 0.68 to 1.85, BLSS CO2 975 to 7516 ppm.
+  - After any change, run all twelve and check each returns a lead and a value.
+
+The configure step writes into demo.js `sel`, and `compose()` merges it over the
+domain with Object.create so domains.js is never mutated. Turning an instrument
+off removes that channel from the filter. One instrument must always stay on.
+
+The page flags its own confidence when mean NIS exceeds 9, which is the same
+gate engine.js uses to downweight a reading it cannot explain. Strip the
+aquaculture run down to the ammonia probe alone and you get NIS 98 and no flag,
+which is the honest answer and worth leaving visible.
+
+FOUNDER'S NOTE (philosophy.html)
+The page opens with the note, centred, single column, no photograph. Six
+paragraphs and the signature. No bold anywhere on this page: the note is
+someone talking, and bold in the middle of a sentence reads as marketing.
+Everything after the note was cut hard in August 2026 (roughly 2,600 words to
+1,600) and should stay short. The numbers strip, four one-paragraph beliefs,
+the dark band, the four principle cards, the sources, the CTA.
+
+The signature at assets/signature.svg is CAM'S OWN, supplied 27 Aug 2026 as a
+PNG and vectorised here. The pipeline was: flatten the alpha onto white, crop to
+the ink bounding box, upsample 2x, threshold at 128, trace with
+potrace -s --turdsize 4 --alphamax 1.0 --opttolerance 0.2, then strip potrace's
+hard-coded fill and set fill="currentColor" on its group so the mark takes the
+page ink colour. 15KB, inlined into philosophy.html. The synthetic signatures
+that preceded this are gone and should not come back.
+
+If it ever needs redoing at a different size or colour, re-trace from the
+original PNG rather than editing the paths.
+
+HERO CUT SCENE
+Three slides on a 10.5s loop, 3.5s each, about 2.9s of hold and a 0.5s
+crossfade. Order is life support (ISS), vertical farming, aquaculture (a shoal
+in blue water). Space leads deliberately. Bioremediation came out when the
+cut scene went from four slides to three; clarifiers.webp is still in the repo,
+unplaced. The monospace ticker bottom left runs on the same 10.5s cycle with the
+same delays. Change one and you must change the other or the label will name
+the wrong picture. The keyframe hold window is 1/3 of the cycle, not 1/4;
+adding or removing a slide means retuning those percentages too.
+
 PHOTOGRAPHY
+Full colour. Sources and licences are in CREDITS.md. Nothing ships without a
+line in that file. Run the saturation check below after any image swap: anything
+under about 30 will read as black and white once the hero scrim is over it.
+
+  python3 -c "
+  from PIL import Image; import glob,os
+  for f in sorted(glob.glob('assets/img/*.webp')):
+      px=list(Image.open(f).convert('RGB').resize((60,60)).convert('HSV').getdata())
+      print(os.path.basename(f), round(sum(p[1] for p in px)/len(px)))"
+
 Full colour. Note that the files that used to sit in assets/img were themselves
 blue-graded by an earlier build (blue channel running 30 to 45 points above red).
 The true full-colour originals were in assets/img/raw. Those have now been

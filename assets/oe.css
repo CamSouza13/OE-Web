@@ -47,14 +47,16 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
 .stmt .lbl::before,.band .lbl::before{background:#3A3F49}
 
 /* ---------- motion primitives ---------- */
-.rv{opacity:0;transform:translateY(22px);
+/* Gated on html.js. If the script never runs, or oe.js is missing, every .rv
+   block stays fully visible instead of an invisible page. */
+.js .rv{opacity:0;transform:translateY(22px);
  transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:var(--d,0ms)}
-.rv.shown{opacity:1;transform:none}
+.js .rv.shown{opacity:1;transform:none}
 .zi{overflow:hidden}
 .zi img,.zi video{transform:scale(1.07);transition:transform 1.5s var(--ease),opacity .9s ease}
 .shown .zi img,.shown .zi video,.zi.shown img,.zi.shown video{transform:scale(1)}
 @media(prefers-reduced-motion:reduce){
- .rv{opacity:1;transform:none;transition:none}
+ .js .rv{opacity:1;transform:none;transition:none}
  .zi img,.zi video{transform:none;transition:none}
  *{animation:none!important}
 }
@@ -119,9 +121,44 @@ body.hero-page .nav{position:fixed;top:0;left:0;right:0}
 .vhero{position:relative;background:var(--deep);overflow:hidden;
  height:min(92vh,960px);min-height:600px;display:flex;align-items:flex-end}
 .vhero video,.vhero>.bgi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* three domains, one at a time. 10.5s loop, ~2.9s hold each, short crossfades. */
+.vhero .slides{position:absolute;inset:0;overflow:hidden}
+.vhero .slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+ animation:slides 10.5s linear infinite}
+.vhero .slides img:nth-child(2){animation-delay:3.5s}
+.vhero .slides img:nth-child(3){animation-delay:7s}
+@keyframes slides{
+ 0%{opacity:0;transform:scale(1.005)}
+ 5%{opacity:1}
+ 28%{opacity:1;transform:scale(1.05)}
+ 33.3%{opacity:0;transform:scale(1.056)}
+ 34%,100%{opacity:0;transform:scale(1.005)}}
+/* domain ticker, locked to the same 10.5s cycle */
+.vhero .dom{position:absolute;left:var(--gut);bottom:clamp(34px,4vw,56px);z-index:3;
+ height:14px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+ color:#B7BCC4;display:flex;align-items:center;gap:10px;pointer-events:none;
+ opacity:0;animation:fin .9s var(--ease) .9s forwards}
+.vhero .dom i{width:5px;height:5px;border-radius:50%;background:var(--acd);flex:none;
+ animation:dpulse 2.5s linear infinite}
+.vhero .dom .rot{position:relative;display:block;width:16em;height:14px}
+.vhero .dom .rot span{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;
+ animation:domtick 10.5s linear infinite}
+.vhero .dom .rot span:nth-child(2){animation-delay:3.5s}
+.vhero .dom .rot span:nth-child(3){animation-delay:7s}
+@keyframes domtick{0%{opacity:0;transform:translateY(5px)}
+ 5%,28%{opacity:1;transform:translateY(0)}
+ 33.3%,100%{opacity:0;transform:translateY(-5px)}}
+@keyframes dpulse{0%,100%{opacity:.35}12%{opacity:1}}
+@media(max-width:820px){.vhero .dom{display:none}}
+@media(prefers-reduced-motion:reduce){
+ .vhero .slides img{animation:none;opacity:0;transform:none}
+ .vhero .slides img:first-child{opacity:1}
+ .vhero .dom{opacity:1;animation:none}
+ .vhero .dom i,.vhero .dom .rot span{animation:none}
+ .vhero .dom .rot span:first-child{opacity:1;transform:none}}
 .vhero::after{content:"";position:absolute;inset:0;pointer-events:none;
- background:linear-gradient(102deg,rgba(10,12,15,.94) 0%,rgba(10,12,15,.74) 42%,rgba(10,12,15,.18) 78%,rgba(10,12,15,.34) 100%),
- linear-gradient(180deg,rgba(10,12,15,.62) 0%,rgba(10,12,15,0) 26%,rgba(10,12,15,0) 58%,rgba(10,12,15,.72) 100%)}
+ background:linear-gradient(102deg,rgba(10,12,15,.90) 0%,rgba(10,12,15,.66) 44%,rgba(10,12,15,.08) 80%,rgba(10,12,15,.24) 100%),
+ linear-gradient(180deg,rgba(10,12,15,.58) 0%,rgba(10,12,15,0) 26%,rgba(10,12,15,0) 60%,rgba(10,12,15,.66) 100%)}
 .vhero .inner{position:relative;z-index:2;width:100%;padding-block:clamp(44px,6vw,92px)}
 .vhero .lbl{color:#8A9099}
 .vhero .eye i{background:var(--acd)}
@@ -226,6 +263,11 @@ h1.big .ln>span{display:block;transform:translateY(105%);
 .sec.tight{padding-block:clamp(66px,7.5vw,120px)}
 .hd2 h2{font-size:clamp(34px,4.9vw,70px);line-height:1.06;margin-top:24px;max-width:18ch;
  letter-spacing:-.016em}
+/* two-part headline: sans set-up line, serif pay-off underneath */
+.hd2 h2.dbl{font-size:clamp(31px,4.2vw,60px);line-height:1.07;max-width:21ch;letter-spacing:-.015em}
+.hd2 h2.dbl b{display:block;font-family:var(--sans);font-size:clamp(14.5px,1.28vw,17.5px);
+ font-weight:600;line-height:1.45;letter-spacing:-.006em;color:var(--t2);
+ max-width:34ch;margin-bottom:clamp(16px,1.5vw,22px);font-variation-settings:normal}
 .lede{font-size:clamp(15.5px,1.4vw,18.5px);line-height:1.6;color:var(--t1);max-width:54ch;margin-top:26px}
 
 /* ---------- stakes ---------- */
@@ -282,9 +324,10 @@ h1.big .ln>span{display:block;transform:translateY(105%);
 .row .nm{font-size:clamp(18px,1.65vw,24px);color:var(--ink);font-weight:600;letter-spacing:-.02em}
 .row .nm span{display:block;font-size:12.8px;color:var(--t2);font-weight:400;margin-top:4px;
  letter-spacing:0}
-.row .pill{font-family:var(--mono);font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;
- color:var(--t2);border:1px solid var(--ln2);padding:6px 10px;white-space:nowrap}
-.row .pill.ok{color:var(--grnd);border-color:rgba(20,67,47,.34)}
+.row .ch{font-family:var(--mono);font-size:15px;color:var(--ln3);line-height:1;padding-right:6px;
+ transform:translateX(-6px);opacity:0;transition:transform .32s var(--ease),opacity .32s var(--ease)}
+.row:hover .ch,.row.on .ch{opacity:1;transform:translateX(0);color:var(--grnd)}
+.idx .fine{font-size:12.5px;line-height:1.75;color:var(--t2);max-width:46ch}
 .panel{position:sticky;top:104px}
 .panel .ph{position:relative;aspect-ratio:16/10;background:var(--sink);overflow:hidden;
  border:1px solid var(--ln)}
@@ -448,6 +491,24 @@ footer{background:var(--bg);border-top:1px solid var(--ln)}
  text-transform:uppercase;color:var(--t3);padding:14px var(--cp)}
 
 /* ---------- prose ---------- */
+/* ---------- founder's note, centred single column ---------- */
+.note{padding-block:clamp(64px,7.5vw,124px) clamp(44px,5vw,78px)}
+.note .col{max-width:70ch;margin-inline:auto;text-align:center}
+.note .lbl{justify-content:center}
+.note .lbl::before{display:none}
+.note h1{font-size:clamp(32px,4vw,55px);line-height:1.08;letter-spacing:-.017em;
+ margin-top:20px;max-width:20ch;margin-inline:auto}
+.note .body{margin-top:clamp(30px,3.2vw,46px);font-size:clamp(15.6px,1.4vw,17.4px);
+ line-height:1.78;color:var(--t1);text-align:left;max-width:64ch;margin-inline:auto}
+.note .body p+p{margin-top:1.15em}
+.note .body .op{font-size:1.1em;line-height:1.62;color:var(--ink);letter-spacing:-.006em}
+.note .sig{margin-top:clamp(38px,4vw,58px);padding-top:clamp(28px,2.8vw,40px);
+ border-top:1px solid var(--ln);max-width:64ch;margin-inline:auto;text-align:center}
+.note .sig svg{display:block;width:clamp(292px,28vw,412px);height:auto;color:var(--ink);
+ margin:0 auto 16px}
+.note .sig .who{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+ color:var(--t3);line-height:1.9}
+
 .prose{max-width:66ch;font-size:15.4px;line-height:1.78;color:var(--t2);margin-top:26px}
 .prose p+p{margin-top:20px}
 .prose b{color:var(--ink);font-weight:600}

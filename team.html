@@ -11,6 +11,8 @@
 <link rel="icon" href="assets/icon-512.png">
 <link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/oe.css">
+<script>/* reveal-on-scroll is opt-in: if oe.js never runs, the safety timer drops the flag and every block stays visible */
+var _d=document.documentElement;_d.classList.add("js");setTimeout(function(){if(!document.querySelector(".rv.shown"))_d.classList.remove("js");},1500);</script>
 </head>
 <body>
 <header class="nav" id="nav"><div class="nv">
@@ -33,12 +35,12 @@
   <div>
    <p class="lbl">Team</p>
    <h1>Three founders, three parts of the problem.</h1>
-   <p class="lede">This is a modelling company, an industry company and a commercial company
-    wearing one name. Each of us owns one of those completely, which is why the work moves in
-    three directions at once without a committee.</p>
+   <p class="lede">There are three jobs in this company: build the models, know the industry,
+    and sell it. One of us owns each one outright. That is how three things move at once without
+    a meeting about it.</p>
   </div>
   <figure class="fr rv zi" style="margin:0">
-   <img src="assets/img/bioprocess.webp" alt="Fermentation vessels in a bioprocess facility" loading="lazy">
+   <img src="assets/img/canopy-field.webp" alt="Fermentation vessels in a bioprocess facility" loading="lazy">
    <div class="ov"><p>San Diego, California</p></div>
   </figure>
  </div>
@@ -57,9 +59,9 @@
     <p>Modelling, biogeochemistry and aquaculture. Cameron owns the engine and the science. He
      wrote the domain models behind every product, the estimator that runs on top of them, and the
      benchmark harness we use to check our own work.</p>
-    <p>His view is that the hard part of this company is not the filter, which is textbook
-     mathematics, but writing a specific living system down correctly enough that the filter has
-     something true to solve against. Everything else follows from that.</p>
+    <p>He will tell you the filter is the easy part, textbook maths. The hard part is
+     describing one particular living system accurately enough that the filter has something true
+     to work on. Everything else follows from getting that right.</p>
     <div class="tags"><span>Land-based aquaculture</span><span>Biogeochemical modelling</span>
      <span>Simulation-based inference</span><span>Benchmark design</span></div>
    </div>
@@ -75,9 +77,9 @@
     <p>Biology and industry. Previously at Leidos, working on biomanufacturing for space.
      Zachary runs the bioprocess, digestion and life support domains, which are the three where
      the customer is a regulated programme rather than a farm.</p>
-    <p>He is the reason the roadmap ends in a sealed habitat and not in a marketing line about
-     one. He has built for that constraint before, and he knows what a programme office will ask
-     for before it asks.</p>
+    <p>He is the reason a sealed habitat sits on the roadmap as a real target rather than a
+     line in a deck. He has built under that constraint before, and he knows what a programme
+     office will ask for before it asks.</p>
     <div class="tags"><span>Biomanufacturing</span><span>Closed-loop life support</span>
      <span>Defence and government programmes</span><span>Bioprocess</span></div>
    </div>
@@ -93,9 +95,9 @@
     <p>Markets and operations. Previously at AWS, a lawyer by training, and a former adviser on
      United Nations policy. Bernard runs commercial structure, channel and the legal interface,
      which in this business means the data agreements more than anything else.</p>
-    <p>An operator handing over failure history is handing over the most sensitive record they
-     keep. The terms that make that safe are not boilerplate, and getting them right early is why
-     conversations reach a second meeting.</p>
+    <p>When an operator hands over their failure history, they are handing over the most
+     sensitive record they keep. Those terms are not boilerplate, and getting them right early is
+     usually why a conversation gets a second meeting.</p>
     <div class="tags"><span>Enterprise commercial</span><span>Contracts and data governance</span>
      <span>International policy</span><span>Channel</span></div>
    </div>
@@ -108,8 +110,8 @@
  <div class="wrap inr">
   <p class="lbl rv">How we work</p>
   <h2 class="rv">Four habits we are not willing to trade.</h2>
-  <p class="rv">These are not values on a wall. Each one has cost us something already, which is
-   the only evidence that they are real.</p>
+  <p class="rv">Every one of these has already cost us something. That is the only reason to
+   believe we actually mean them.</p>
   <ul class="rv">
    <li><b>We publish the misses.</b> Every evaluation reports where the engine would have been
     wrong on that operator's history, alongside where it would have been right. We have thrown out
@@ -166,7 +168,7 @@
    </ul>
   </div>
   <div class="box rv zi">
-   <div class="bgi"><img src="assets/img/raceways.webp" alt="" loading="lazy"></div>
+   <div class="bgi"><img src="assets/img/ponds.webp" alt="" loading="lazy"></div>
    <div class="in2">
     <a class="btn lg" href="mailto:cameron@orbitalecology.com">Email Cameron <span class="ar">&rarr;</span></a>
     <a class="btn lg lt" href="evaluation.html">Request an evaluation <span class="ar">&rarr;</span></a>
@@ -188,11 +190,9 @@
     biological life support, from the mud to the moon.</p>
   </div>
   <div><h4>Products</h4>
-   <a href="current.html">CURRENT &middot; Aquaculture</a>
+   <a href="current.html">CURRENT &middot; Aquaculture and water</a>
    <a href="canopy.html">CANOPY &middot; Controlled agriculture</a>
-   <a href="aquifer.html">AQUIFER &middot; Hydroponics and water</a>
-   <a href="reclaim.html">RECLAIM &middot; Bioremediation</a>
-   <a href="culture.html">CULTURE &middot; Bioprocessing</a>
+   <a href="culture.html">CULTURE &middot; Bioprocessing and bioremediation</a>
    <a href="orbis.html">ORBIS &middot; Space and life support</a>
   </div>
   <div><h4>Company</h4>
@@ -200,7 +200,6 @@
    <a href="team.html">Team</a>
    <a href="company.html">About</a>
    <a href="index.html#record">Validation record</a>
-   <a href="nexus.html">NEXUS platform</a>
    
   </div>
   <div><h4>Contact</h4>

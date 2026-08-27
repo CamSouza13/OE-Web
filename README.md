@@ -1,112 +1,96 @@
-# Signal
+# Orbital Ecology, website
 
-Self-hosted veterinary teleradiology and record-consulting platform. This is the starter build: the whole local stack plus a working Next.js app with a database, a worklist, a case-and-report screen, and a report drafted by a local AI model. Everything runs on your own machine.
+Static site. No build step at serve time, no dependencies, no framework. The
+GitHub Actions workflow publishes exactly what is committed.
 
-This is a scaffold, not a finished product. It gives you something live to build on, wired the way the spec describes.
+## Two halves of the repo
 
-## What you need
+**Hand-built, current design.** Light ground, Newsreader display serif, one
+brand accent. These are edited directly as HTML.
 
-Docker and Docker Compose. Nothing else. A GPU helps the AI but is not required to start.
+    index.html          home
+    philosophy.html     why the work matters, fully sourced
+    team.html           the three founders and how we work
+    demo.html           the live engine
 
-## Start it
+**Generated, previous dark design.** These are `tools/build.py` output, still in
+the old dark theme, and still linked from the nav, the product index and the
+footer of the pages above. Do not delete them without porting them first: the
+"Request an evaluation" CTA on every page points at `evaluation.html`.
 
-```
-cd signal
-docker compose up
-```
+    evaluation.html     the offer in full, plus the request form
+    company.html        founders, stage, contact
+    current.html canopy.html aquifer.html reclaim.html
+    culture.html orbis.html field.html nexus.html
+    404.html
 
-First boot takes a few minutes. It installs the app's dependencies, starts Postgres and loads the schema and sample data, starts MinIO and creates the bucket, and starts Ollama and Orthanc.
+Porting them onto `assets/oe.css` is the last visible seam in the site.
 
-Then pull a model for the local AI, once:
+## Shared front end
 
-```
-docker compose exec ollama ollama pull llama3.1
-```
+    assets/oe.css       the whole design system, all four hand-built pages
+    assets/oe.js        nav, scroll reveal, count-up, parallax
+    assets/fonts.css    @font-face for the self-hosted faces
+    assets/fonts/       Newsreader 400, Inter Tight 400/500/600,
+                        JetBrains Mono 400/500. Latin subset, 321 KB total.
+    assets/img/*.webp   full-colour photography
+    assets/video/       hero footage, 720p encode
 
-Open the app:
+`SITE.md` is the design and maintenance handbook: palette, type scale, the two
+CSS traps that will bite you, and the provenance rules for the figures. Read it
+before changing anything visual.
 
-```
-http://localhost
-```
+## The live demo
 
-You will see a worklist with three sample cases. Open one, then click **Draft in my voice**. The local model writes a findings draft. Edit it, then **Sign and deliver**. The case flips to signed.
+`demo.html` runs the production estimator in the browser.
 
-## Services
+    engine.js     UKF, RK4, Monte-Carlo forecast, with run counters
+    domains.js    four domain models, safety limits, cost assumptions
+    samples.js    the four sample logs, embedded, so the page works offline
+    demo.js       CSV parsing, the time-sliced run loop, charts, narration
+    data/         the same four logs as standalone CSVs
 
-| Service | What it is | Reached at |
-|---|---|---|
-| caddy | Reverse proxy, the only public door | http://localhost |
-| web | The Next.js app | proxied by Caddy |
-| db | Postgres with pgvector | internal |
-| minio | Object storage for studies and PDFs | console on :9001 (signal / signal-secret) |
-| ollama | The local AI model | internal |
-| orthanc | DICOM store for the viewer, optional | internal |
+The sample logs are synthetic and every page that shows a figure from them says
+so. Cost figures are modelled from assumptions printed on each card.
 
-## What works now
+## The generator
 
-- The stack comes up with one command.
-- The worklist reads real cases from Postgres, sorted by priority.
-- The case screen shows the study panel, the request details, and the report editor.
-- The editor drafts with the local model over Ollama, saves drafts, and signs.
-- Uploads have an endpoint that puts files in storage and links them to a case.
+`tools/build.py` regenerates the dark pages from `tools/content.py`. It is no
+longer run at deploy time, because it writes `index.html` and would overwrite
+the hand-built home page. It lives in `tools/` so the staging step cannot pick
+it up. To regenerate the pages it owns:
 
-## What is stubbed, and where to build next
+    cd tools && python3 build.py
 
-- **The viewer.** The case screen has a placeholder. Wiring OHIF to the Orthanc DICOMweb endpoint is the next real piece. See the note below.
-- **Draft in your voice.** Right now the model drafts from the case alone. The real feature retrieves your finalized reports from the `report_embedding` table and feeds them in as style examples. That code hook is marked in `web/lib/ai.ts`.
-- **Auth.** There is a single seeded user and no login yet. Add Auth.js on Postgres, then scope every query by practice and role.
-- **The practice upload path.** The `/api/upload` endpoint exists. The no-install link a clinic uses to send a study is built on top of it.
-- **Record synthesis.** The data model supports it (`study_file.kind = 'document'`). The PDF extract and summarize flow is Phase 2.
+Then check `git diff` before committing: it will try to rewrite `index.html`.
 
-## Project structure
+## Deploying
 
-```
-signal/
-  docker-compose.yml      the whole stack
-  Caddyfile               proxy and TLS config (local vs public domain)
-  .env.example            env for running the app outside Docker
-  db/
-    schema.sql            tables, runs on first db boot
-    seed.sql              sample practices, patients, cases
-  orthanc/orthanc.json    viewer store config
-  web/
-    package.json
-    lib/
-      db.ts               Postgres pool
-      ai.ts               local AI drafting (Ollama)
-      storage.ts          S3-compatible storage (MinIO or your own bucket)
-    app/
-      layout.tsx          shell and sidebar
-      worklist/page.tsx   the worklist
-      case/[id]/page.tsx  study panel + report editor
-      api/
-        ai/draft/route.ts       draft with the local model
-        cases/route.ts          list cases
-        cases/[id]/report/route.ts   save and sign a report
-        upload/route.ts         file upload
-    components/Editor.tsx  the report editor (client)
-```
+Push to `main`. The workflow stages `_site` and publishes it. About a minute.
 
-## Build order
+Settings, Pages: Source is **GitHub Actions**, custom domain
+`orbitalecology.com`, **Enforce HTTPS** ticked. `CNAME` and `.nojekyll` are in
+the repo; do not delete either.
 
-This maps to the spec's phases.
+DNS:
 
-**Phase 0, prove the model.** Before more app work, confirm the local model drafts in your voice. Pull a few models, load 20 to 50 of your finalized reports, and compare drafts. This decides the whole idea. You can do it with the draft endpoint here or a small standalone script.
+    A      @      185.199.108.153
+    A      @      185.199.109.153
+    A      @      185.199.110.153
+    A      @      185.199.111.153
+    CNAME  www    camsouza13.github.io.
 
-**Phase 1, the read, for real.** Add auth and per-practice scoping. Wire the retrieval so drafting uses your report corpus. Build the OHIF viewer. Turn the upload endpoint into the practice-facing upload link. Add templates and snippet expansion to the editor.
+## Outstanding
 
-**Phase 2, the consult and a second user.** Add PDF ingest with OCR and the synthesis flow. Add dictation with a local whisper model. Bring on one friendly practice.
+The evaluation form composes a pre-filled email until `FORM_ID` is set in
+`tools/content.py`. Create a free form at formspree.io, copy the id out of the
+endpoint, paste it in, regenerate `evaluation.html`, push.
 
-**Phase 3, polish and first customers.** Sharpen the style model, add heavier viewer tools, and stand up in-clinic mode.
+## Discipline that must not drift
 
-## Point storage at your own cloud bucket
+The engine estimates state and forecasts it forward. It is read-only. It
+connects to no control loop. Autonomous control is roadmap, not product.
 
-Local disk through MinIO is the default. To use your own encrypted AWS bucket instead, change the `S3_*` env vars in `docker-compose.yml` (or `.env`) to your endpoint, region, bucket, and keys. The storage layer is S3-compatible, so nothing else changes. It stays your account and your keys.
-
-## Wire the viewer
-
-Run the OHIF viewer pointed at Orthanc's DICOMweb endpoint (`/dicom-web/` on the orthanc service), then embed it in `web/app/case/[id]/page.tsx` where the placeholder is. Keep Orthanc on the internal network and turn on its authentication before exposing anything.
-
-## A note on security
-
-HIPAA does not apply to veterinary records, so this is deliberately light. Still: keep the database, storage, and model on the internal network, expose only Caddy, put the box on an encrypted disk, and change every default password in `docker-compose.yml` before this touches real data.
+Every figure resolves to the validation record, a published benchmark, or a
+numbered source. Simulation is labelled as simulation. The site does not claim
+a live deployment, a paid pilot or a customer, because there is not one yet.
