@@ -85,6 +85,23 @@ is what makes their deutan separation legal.
 Green carries meaning rather than decoration: it means "the thing we add", which
 is the estimate, the warning, and the call to action. Nothing else is green.
 
+PRODUCT PAGES (current, canopy, culture, orbis)
+Rebuilt on oe.css in August 2026 and generated, not hand-written. The generator
+is tools/build_products.py. It reads the canonical product data straight out of
+index.html (the `var P` array and the `var R` validation record) so a product
+page can never disagree with the home page. Change the copy on the home page,
+re-run the generator, commit the four files.
+
+  python3 tools/build_products.py
+
+Page order: hero, what it estimates, four operating principles, where it runs
+(demo configurations plus the fields covered), the shared three-step method, the
+validation rows for that product only, the other three products, CTA.
+
+The four retired products are now redirect stubs, not pages: aquifer -> canopy,
+reclaim -> culture, field and nexus -> the product index. They keep their URLs
+working, carry a canonical link and noindex, and are out of the sitemap.
+
 LIVE DEMO (demo.html + presets.js + demo.js)
 Three steps then a full-screen run. Pick a domain, pick the system inside it,
 say what instruments and stock you have, hit run. The "bring your own CSV"
